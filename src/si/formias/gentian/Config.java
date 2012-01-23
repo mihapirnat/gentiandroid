@@ -43,12 +43,12 @@ import static si.formias.gentian.Util.*;
 
 public class Config {
 	static {
-	    Security.addProvider(new org.spongycastle.jce.provider.BouncyCastleProvider());
+		Security.addProvider(new org.spongycastle.jce.provider.BouncyCastleProvider());
 	}
 
 	public GentianConfig configData;
 	public static File gentian;
-	ZipGentianKeyProvider masterProvider,walletProvider,walletProvider2;
+	ZipGentianKeyProvider masterProvider, walletProvider, walletProvider2;
 	final File walletSaltFile;
 	final File walletKeyPackFile;
 	final File walletKeyPackFile2;
@@ -60,7 +60,7 @@ public class Config {
 	boolean inited;
 	public byte[] check;
 	public static GentianChat gentianChat;
-	public final int SAVEPREFIX=32;
+	public final int SAVEPREFIX = 32;
 	byte[][] aes;
 	static {
 		{
@@ -74,7 +74,8 @@ public class Config {
 			} else {
 				mExternalStorageAvailable = mExternalStorageWriteable = false;
 			}
-			if (!(mExternalStorageAvailable && mExternalStorageWriteable) && gentianChat!=null)
+			if (!(mExternalStorageAvailable && mExternalStorageWriteable)
+					&& gentianChat != null)
 				gentianChat.displayNotice("External storage not available.",
 						new Runnable() {
 							public void run() {
@@ -84,13 +85,15 @@ public class Config {
 		}
 		File storageDir = Environment.getExternalStorageDirectory();
 		gentian = new File(storageDir, "gentian");
-		if (gentian.exists()) gentian.renameTo(new File("gentianold"));
+		if (gentian.exists())
+			gentian.renameTo(new File("gentianold"));
 		if (!gentian.exists()) {
 			gentian.mkdir();
 		}
 	}
+
 	public Config(final GentianChat gentianChat) {
-		Config.gentianChat=gentianChat;
+		Config.gentianChat = gentianChat;
 		if (!gentian.exists()) {
 			gentian.mkdir();
 		}
@@ -99,7 +102,7 @@ public class Config {
 		walletKeyPackFile2 = new File(gentian, "walletkeys2");
 		walletControlFile = new File(gentian, "walletcontrol");
 		masterKeyPackFile = new File(gentian, "masterkeys");
-		logFilenameKeysFile=new File(gentian,"logfilenamekeys");
+		logFilenameKeysFile = new File(gentian, "logfilenamekeys");
 		configFile = new File(gentian, "config");
 		final byte[] salt = new byte[128];
 		if (!masterKeyPackFile.exists()) {
@@ -125,37 +128,45 @@ public class Config {
 									e.printStackTrace();
 								}
 
-							}  
+							}
 							try {
 								byte[] pass = encryptPassword(salt, password);
-								
+
 								aes = splitBytes(pass, 32);
-								//System.out.print("AES save: "+Base64.encodeToString(aes[0], false)+ " "+Base64.encodeToString(aes[1], false));
-								GentianEnvelope.AUTOWIPE=false;
+								// System.out.print("AES save: "+Base64.encodeToString(aes[0],
+								// false)+ " "+Base64.encodeToString(aes[1],
+								// false));
+								GentianEnvelope.AUTOWIPE = false;
 								walletProvider = new ZipGentianKeyProvider(
 										walletKeyPackFile, 1, aes);
-								walletProvider2 =  new ZipGentianKeyProvider(
+								walletProvider2 = new ZipGentianKeyProvider(
 										walletKeyPackFile2, 1, walletProvider,
 										4, 0, null);
 								byte[] salt2 = Util.copy(salt);
 								{
-								
-									byte[] check=GentianEnvelope.wrap(walletProvider2, salt, 8,0, 0,false);
-									
-										
-									
-									FileOutputStream out = new FileOutputStream(walletControlFile);
-									
+
+									byte[] check = GentianEnvelope.wrap(
+											walletProvider2, salt, 8, 0, 0,
+											false);
+
+									FileOutputStream out = new FileOutputStream(
+											walletControlFile);
+
 									out.write(check);
 									out.close();
-									//System.out.println("initialize control:"+check.length+" "+Base64.encodeToString(check, false));
-									byte[] check2 = GentianEnvelope.unwrap(walletProvider2, check, 8,0,false);
-									//System.out.println("Initial check:"+Util.equal(salt2, check2)+" "+Base64.encodeToString(check2, false));
+									// System.out.println("initialize control:"+check.length+" "+Base64.encodeToString(check,
+									// false));
+									byte[] check2 = GentianEnvelope
+											.unwrap(walletProvider2, check, 8,
+													0, false);
+									// System.out.println("Initial check:"+Util.equal(salt2,
+									// check2)+" "+Base64.encodeToString(check2,
+									// false));
 								}
 								masterProvider = new ZipGentianKeyProvider(
 										masterKeyPackFile, 1, walletProvider2,
 										4, 0, null);
-								loadKeys(salt2,aes); 
+								loadKeys(salt2, aes);
 							} catch (NoSuchAlgorithmException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
@@ -196,29 +207,36 @@ public class Config {
 						}
 					});
 		} else {
-			OpenMasterPasswordDialog dialog=new OpenMasterPasswordDialog(gentianChat,
-					new OpenMasterPasswordDialog.CallBack() {
+			OpenMasterPasswordDialog dialog = new OpenMasterPasswordDialog(
+					gentianChat, new OpenMasterPasswordDialog.CallBack() {
 
 						@Override
 						public boolean passwordSet(String password) {
 							FileInputStream in;
 							try {
 								in = new FileInputStream(walletSaltFile);
-								/*System.out.println("Read " + in.read(salt)
-										+ " salt bytes");*/
+								/*
+								 * System.out.println("Read " + in.read(salt) +
+								 * " salt bytes");
+								 */
 								in.read(salt);
 								in.close();
 								byte[] pass = encryptPassword(salt, password);
-								/*System.out.println("Wallet passkey generated: "
-										+ Base64.encodeToString(pass, false));*/
+								/*
+								 * System.out.println("Wallet passkey generated: "
+								 * + Base64.encodeToString(pass, false));
+								 */
 								aes = splitBytes(pass, 32);
-								//System.out.print("AES load: "+Base64.encodeToString(aes[0], false)+ " "+Base64.encodeToString(aes[1], false));
-					if (!	loadKeys(salt, aes)) {
-						gentianChat.displayNotice("Wrong password.", null);
-						return false;
-					} else {
-						return true;
-					}
+								// System.out.print("AES load: "+Base64.encodeToString(aes[0],
+								// false)+ " "+Base64.encodeToString(aes[1],
+								// false));
+								if (!loadKeys(salt, aes)) {
+									gentianChat.displayNotice(
+											"Wrong password.", null);
+									return false;
+								} else {
+									return true;
+								}
 
 							} catch (FileNotFoundException e) {
 								// TODO Auto-generated catch block
@@ -232,33 +250,37 @@ public class Config {
 							}
 							return false;
 						}
-						
+
 					});
 
 		}
 	}
 
-	private boolean loadKeys(byte[] salt,byte[][] aes) throws NoSuchAlgorithmException,
-			FileNotFoundException, IOException {
-		GentianEnvelope.AUTOWIPE=false;
-		if (walletProvider==null) walletProvider = new ZipGentianKeyProvider(
-				walletKeyPackFile, aes);
-		if (walletProvider2==null) walletProvider2=new ZipGentianKeyProvider(walletKeyPackFile2,
-				walletProvider, 4, 0,null);
-		
-		byte[] control=new byte[384];
+	private boolean loadKeys(byte[] salt, byte[][] aes)
+			throws NoSuchAlgorithmException, FileNotFoundException, IOException {
+		GentianEnvelope.AUTOWIPE = false;
+		if (walletProvider == null)
+			walletProvider = new ZipGentianKeyProvider(walletKeyPackFile, aes);
+		if (walletProvider2 == null)
+			walletProvider2 = new ZipGentianKeyProvider(walletKeyPackFile2,
+					walletProvider, 4, 0, null);
+
+		byte[] control = new byte[384];
 		{
 			FileInputStream in = new FileInputStream(walletControlFile);
-			/*System.out.println("Read " + in.read(control)
-					+ " control bytes");*/
-			int read= in.read(control);
-			System.out.println("Read " + read
-					+ " control bytes");
+			/*
+			 * System.out.println("Read " + in.read(control) +
+			 * " control bytes");
+			 */
+			int read = in.read(control);
+			System.out.println("Read " + read + " control bytes");
 			in.close();
-			//System.out.println("control loaded:"+control.length+" "+Base64.encodeToString(control, false));						 
-			byte[] check=null;
+			// System.out.println("control loaded:"+control.length+" "+Base64.encodeToString(control,
+			// false));
+			byte[] check = null;
 			try {
-				check = GentianEnvelope.unwrap(walletProvider2, control, 8,0,false);
+				check = GentianEnvelope.unwrap(walletProvider2, control, 8, 0,
+						false);
 			} catch (InvalidKeyException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -278,61 +300,58 @@ public class Config {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-			
-			if (!equal(check, salt))  {
-				//System.out.println("*** WRONG PASS");
-				this.check=check;
+
+			if (!equal(check, salt)) {
+				// System.out.println("*** WRONG PASS");
+				this.check = check;
 				return false;
 			} else {
-				//System.out.println("*** PAsS OK");
+				// System.out.println("*** PAsS OK");
 			}
 		}
-		
-		if (masterProvider==null)masterProvider = new ZipGentianKeyProvider(masterKeyPackFile,
-				walletProvider2, 4, 0,null);
-		GentianEnvelope.AUTOWIPE=true;
-		inited=true;
+
+		if (masterProvider == null)
+			masterProvider = new ZipGentianKeyProvider(masterKeyPackFile,
+					walletProvider2, 4, 0, null);
+		GentianEnvelope.AUTOWIPE = true;
+		inited = true;
 		if (configFile.exists()) {
 			try {
-			
-			
-				configData=(GentianConfig)loadNodeFile(configFile);
-				//System.out.println("gentian config read");
-				
+
+				configData = (GentianConfig) loadNodeFile(configFile);
+				// System.out.println("gentian config read");
+
 			} catch (Exception e) {
-				
+
 			}
 		}
-		if (configData==null) {
+		if (configData == null) {
 			try {
-				configData=new GentianConfig(null);
-				
-							
+				configData = new GentianConfig(null);
+
 				try {
-						configData.add(new GentianAccount());
+					configData.add(new GentianAccount());
 				} catch (InvalidKeySpecException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 				saveConfig();
-					
-					
+
 				System.out.println("gentian config created");
-				
-				
+
 			} catch (SAXException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
 		}
-		//System.out.println("Master keys loaded");
+		// System.out.println("Master keys loaded");
 		if (logFilenameKeysFile.exists()) {
 			try {
-				logFilenameKeys=splitBytes(GentianEnvelope.unwrap(masterProvider, 
-						Util.readStreamBytes(new FileInputStream(logFilenameKeysFile)),
-						8,0,false),32);
+				logFilenameKeys = splitBytes(GentianEnvelope.unwrap(
+						masterProvider, Util
+								.readStreamBytes(new FileInputStream(
+										logFilenameKeysFile)), 8, 0, false), 32);
 			} catch (InvalidKeyException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -353,14 +372,16 @@ public class Config {
 				e.printStackTrace();
 			}
 		} else {
-			SecureRandom r= new SecureRandom();
-			byte[] keys = new byte[32*8];
+			SecureRandom r = new SecureRandom();
+			byte[] keys = new byte[32 * 8];
 			r.nextBytes(keys);
-			
-			logFilenameKeys=splitBytes(keys, 32);
+
+			logFilenameKeys = splitBytes(keys, 32);
 			try {
-				byte[] encrypted=GentianEnvelope.wrap(masterProvider, keys, 8,0,0,false); 
-				FileOutputStream fout = new FileOutputStream(logFilenameKeysFile);
+				byte[] encrypted = GentianEnvelope.wrap(masterProvider, keys,
+						8, 0, 0, false);
+				FileOutputStream fout = new FileOutputStream(
+						logFilenameKeysFile);
 				fout.write(encrypted);
 				fout.close();
 			} catch (InvalidKeyException e) {
@@ -387,19 +408,30 @@ public class Config {
 			}
 		}
 		gentianChat.configLoaded();
-		
+
 		return true;
 	}
+
 	public Node loadNodeFile(File file) {
 		try {
-		byte[] bytes=Util.readStreamBytes(new FileInputStream(file));  
-		bytes= GentianEnvelope.unwrap(masterProvider,bytes, 8,0,true);
-		ByteArrayInputStream bin =new ByteArrayInputStream(bytes, SAVEPREFIX, bytes.length-SAVEPREFIX);
-		
-		Parser p = new Parser();
-		
-			p.parse(bin);
-			return p.root;
+			byte[] bytes = Util.readStreamBytes(new FileInputStream(file));
+			bytes = GentianEnvelope.unwrap(masterProvider, bytes, 8, 0, true);
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			byte[][] cut = cut(bytes, SAVEPREFIX);
+			cut = cut(cut[1], 32);
+			md.update(cut[1]);
+			byte[] digest = md.digest();
+			if (equal(cut[0], digest)) {
+				// valid checksum for xml
+				ByteArrayInputStream bin = new ByteArrayInputStream(cut[1]);
+
+				Parser p = new Parser();
+
+				p.parse(bin);
+				return p.root;
+			} else {
+				return null;
+			}
 		} catch (SAXException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -438,25 +470,31 @@ public class Config {
 	}
 
 	public synchronized void saveConfig() {
-		
-		saveNodeToFile(configData,configFile);
+
+		saveNodeToFile(configData, configFile);
 	}
-	public void saveNodeToFile(Node root,File file) {
+
+	public void saveNodeToFile(Node root, File file) {
 		try {
-			
+
 			SecureRandom r = new SecureRandom();
 			byte[] seed = new byte[SAVEPREFIX];
 			r.nextBytes(seed);
-			
+
 			ByteArrayOutputStream bout = new ByteArrayOutputStream();
 			bout.write(seed);
-			bout.write(root.toString(0).getBytes("utf-8"));
-			byte[] save =GentianEnvelope.wrap(masterProvider, bout.toByteArray(), 8,0, 0,true);
+			byte[] content = root.toString(0).getBytes("utf-8");
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			md.update(content);
+			byte[] digest = md.digest();
+			bout.write(digest);
+			bout.write(content);
+			byte[] save = GentianEnvelope.wrap(masterProvider,
+					bout.toByteArray(), 8, 0, 0, true);
 			FileOutputStream fout = new FileOutputStream(file);
 			fout.write(save);
 			fout.close();
-			
-			
+
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -492,8 +530,7 @@ public class Config {
 			e.printStackTrace();
 		}
 	}
-		
-	
+
 	public String encodeFilename(String filename) {
 		try {
 			return encodeFilename(filename.getBytes("utf-8"));
@@ -503,16 +540,18 @@ public class Config {
 		}
 		return null;
 	}
+
 	public String encodeFilename(byte[] b) {
-			
-		byte[]iv=new byte[16];
+
+		byte[] iv = new byte[16];
 		try {
-			
-		for (int i = 0;i<logFilenameKeys.length;i++) {
-			b=GentianCrypt.encrypt(logFilenameKeys[i],iv , b, i==0);
-		}
-			return Base64.encodeToString(b, false).replace("+","-").replace("/","_").replace("=","~");
-		}  catch (InvalidKeyException e) {
+
+			for (int i = 0; i < logFilenameKeys.length; i++) {
+				b = GentianCrypt.encrypt(logFilenameKeys[i], iv, b, i == 0);
+			}
+			return Base64.encodeToString(b, false).replace("+", "-")
+					.replace("/", "_").replace("=", "~");
+		} catch (InvalidKeyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NoSuchAlgorithmException e) {
@@ -535,16 +574,18 @@ public class Config {
 			e.printStackTrace();
 		}
 		return null;
-	} 
+	}
+
 	public String decodeFileName(String filename) {
-		byte[] b =Base64.decode(filename.replace("-","+").replace("_","/").replace("~","="));
-		byte[]iv=new byte[16];
+		byte[] b = Base64.decode(filename.replace("-", "+").replace("_", "/")
+				.replace("~", "="));
+		byte[] iv = new byte[16];
 		try {
-		for (int i = logFilenameKeys.length-1;i>=0;i--) {
-			b=GentianCrypt.decrypt(logFilenameKeys[i],iv , b, i==0);
-		}
-		
-			return new String(b,"utf-8");
+			for (int i = logFilenameKeys.length - 1; i >= 0; i--) {
+				b = GentianCrypt.decrypt(logFilenameKeys[i], iv, b, i == 0);
+			}
+
+			return new String(b, "utf-8");
 		} catch (UnsupportedEncodingException e) {
 
 			e.printStackTrace();
@@ -569,11 +610,15 @@ public class Config {
 		}
 		return null;
 	}
+
 	public void wipe() {
-		if (masterProvider!=null) masterProvider.wipe();
-		if (walletProvider!=null) walletProvider.wipe();
-		if (walletProvider2!=null) walletProvider2.wipe();
+		if (masterProvider != null)
+			masterProvider.wipe();
+		if (walletProvider != null)
+			walletProvider.wipe();
+		if (walletProvider2 != null)
+			walletProvider2.wipe();
 		Util.wipe(aes);
-		
+
 	}
 }

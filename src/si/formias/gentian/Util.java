@@ -1,5 +1,6 @@
 package si.formias.gentian;
 
+import static si.formias.gentian.Util.wipe;
 import gentian.util.Base64;
 
 import java.io.BufferedReader;
@@ -142,5 +143,22 @@ public class Util {
 			copy[i]=salt[i];
 		}
 		return copy;
+	}
+	static byte[][] cut(byte[] source, int endOfFirstOffset) {
+		byte[][] result = new byte[2][];
+		byte[] first = new byte[endOfFirstOffset];
+		int sourcelen = source.length;
+		int secondlen = sourcelen - endOfFirstOffset;
+		byte[] second = new byte[secondlen];
+		for (int i = 0; i < endOfFirstOffset; i++) {
+			first[i] = source[i];
+		}
+		for (int i = 0; i < secondlen; i++) {
+			second[i] = source[i + endOfFirstOffset];
+		}
+	
+		result[0] = first;
+		result[1] = second;
+		return result;
 	}
 }
