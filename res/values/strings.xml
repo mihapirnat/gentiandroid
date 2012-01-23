@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Gentian</string>
+    <string name="remote_service_started">Service running...</string>
+    <string name="remote_service_stopped">Gentian Service stopped</string>
+    <string name="remote_service_connected">Gentian Service connected</string>
+    <string name="remote_service_disconnected">Gentian Service disconnected</string>
+    <string name="top_create_account">Create\naccount</string>
+    <string name="top_add_contact">Add\ncontact</string>
+    <string name="top_export_identity">Export\nidentity</string>
+    <string name="top_exit">Exit</string>
+    <string name="top_contacts">Contacts</string>
+    <string name="top_messages">Messages</string>
+    <string name="top_log">Log</string>
+
+	<string name="log_started">"Gentian version %d started.</string>    
+    <string name="log_connecting_master">Connecting to master server...</string>
+ 	<string name="log_server_list_updated">Updated server list: %d servers.</string>
+ 	<string name="log_orbot_connect_failed">Cannot connect to local Orbot proxy: %s</string>
+ 	<string name="log_orbot_description">Orbot proxy is not available.\n\nThis application uses it to access servers. If you have not installed it yet, please install it now.\nIt is available on Market as:\nOrbot: Tor on Android \n\nIf it is already installed, please start and activate it.</string>
+ 	<string name="log_server_list_update_failed">"Failed to refresh server list: %s</string>
+ 	
+ 	
+ 	<string name="buttons_ok">OK</string>
+ 	<string name="buttons_cancel">Cancel</string>
+ 	<string name="buttons_send">Send</string> 
+ 	<string name="openpassword_title">Enter your password</string>
+ 	<string name="openpassword_description">Please enter your password to unlock chat.</string>
+ 	<string name="newpassword_title">Choose a password</string>
+ 	<string name="newpassword_description">This is first time this chat is used. You need to choose a password and type it twice. Your password must be at least %d chars long\n\nMake sure you remember the password or you will not be able to access your accounts. No password recovery options are available.</string>
+ 	<string name="newpassword_button_set">Set password</string>
+ 	<string name="newpassword_passwords_do_not_match">Passwords do not match.</string>
+ 	<string name="newpassword_password_too_short">Password must be at least %d characters long.</string>
+ 	<string name="newpassword_password_set">Password has been set. Will generate keys after you press OK. This might take a while...</string>
+ 	 
+ 	<string name="newaccount_title">New account</string>
+ 	<string name="newaccount_description">Please choose or enter a server. Server can be added manually or QR code of server can be scanned.</string>
+ 	<string name="newaccount_register_generatingrsa">Generating public/private key pair for new account on %1$s:%2$d</string>
+ 	<string name="newaccount_register_rsagenerated">RSA-%1$s key pair created: %2$d ms.</string>
+ 	<string name="newaccount_register_withserver">Registering identity with server....</string>
+ 	<string name="newaccount_register_success">Account registered.</string>
+ 	<string name="newaccount_register_fail">Registration failed.</string>
+ 	
+ 	
+ 	<string name="exportidentity_title">Export identity</string>
+ 	<string name="exportidentity_description">Please choose identity to export. If no identity is listed, create account first. Click on identity will launch QR code generation, long click will copy URL to clipboard.</string>
+<string name="exportidentity_clipboard">Identity URL has been saved to clipboard.</string> 	
+ 	<string name="newcontactadd_title">Add contact</string>
+ 	<string name="newcontactadd_description">Please choose or create account to add this contact to.</string>
+ 	<string name="text_nick">Nick</string>
+ 	<string name="text_phone">Phone</string>
+ 	<string name="text_browse">Browse</string> 
+ 	<string name="newcontactadd_newaccount">Create account</string>
+ 	<string name="newcontactadd_gotuser">Received contact information from server.</string>
+ 	<string name="newcontactadd_failuser">Failed to receive contact information from server.</string>
+ 	<string name="newcontactadd_newcontactadd_that_is_me">This is your own account.</string>
+ 	<string name="newcontactadd_already_added">You have already added this contact: %s.</string>
+ 	<string name="text_me">Me</string>
+ 	<string name="date_format">%1$tm %1$te, %1$tY %1$tH:%1$tM:%1$tS</string>
+	<string name="waiting_messages">New messages: %d</string>
+	<string name="received_sms_unknown_phone">Received SMS from unknown phone</string> 
+	<string name="cant_decode_received_sms">Error decoding SMS message (wrong HMAC).</string> 
+	<string name="editcontact">Edit contact</string>
+	<string name="wrong_timestamp_smaller_or_equal_replay">ERROR: Received message timestamp was smaller or equal to last received. Possible replay attack!</string> 		 	   
+		<string name="wrong_signature">ERROR: Wrong signature.</string>
+		<string name="no_forward_secrecy">Session is not established, no forward secrecy. Both parties must send a message to complete ECDH.</string>
+	<string name="forward_secrecy_ok">Session is established.</string>
+	<string name="buttons_delete">Delete</string>
+	<string name="confirm_delete_contact">Are you sure you want to delete this contact?</string>
+	
+	 
+</resources> 

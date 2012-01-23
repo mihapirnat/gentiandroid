@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Encijan</string>
+    <string name="remote_service_started">Storitev teče...</string>
+    <string name="remote_service_stopped">Encijan storitev je ustavljena</string>
+    <string name="remote_service_connected">Encijan storitev povezana</string>
+    <string name="remote_service_disconnected">Encijan storitev je odklopljena</string>
+    <string name="top_create_account">Ustvari\nračun</string>
+    <string name="top_add_contact">Dodaj\nkontakt</string>
+    <string name="top_export_identity">Izvozi\nidentiteto</string>
+	<string name="top_exit">Izhod</string>
+    <string name="top_contacts">Kontakti</string>
+    <string name="top_messages">Sporočila</string>
+    <string name="top_log">Dnevnik</string>
+    
+    <string name="log_started">"Encijan različica %d zagnana.</string>
+    <string name="log_connecting_master">Povezujem se na osrednji strežnik...</string>
+ 	<string name="log_server_list_updated">Posodobil seznam strežnikov: %d strežnikov.</string>
+ 	<string name="log_orbot_connect_failed">Povezava na lokalni Orbot posredniški strežnik ni uspela: %s</string>
+ 	<string name="log_orbot_description">Orbot posredniški strežnik ni na voljo.\n\nTa aplikacija ga uporablja za dostop do strežnikov. Če ga še niste namestili, ga prosim namestite zdaj.\nNa voljo je na Market:\nOrbot: Tor on Android \n\nČe je že nameščen, ga zaženite in aktivirajte.</string>
+ 	<string name="log_server_list_update_failed">"Posodobitev seznama strežnikov ni uspela: %s</string>
+ 	
+ 	<string name="buttons_ok">V redu</string>
+ 	<string name="buttons_cancel">Prekliči</string>
+ 	<string name="buttons_send">Pošlji</string>
+ 	<string name="openpassword_title">Vnesite vaše geslo</string>
+ 	<string name="openpassword_description">Prosim vnesite geslo, da odklenete klepet.</string>
+ 	<string name="newpassword_title">Izberite geslo</string> 
+ 	<string name="newpassword_description">Prvič uporabljate ta klepet. Izbrati morate geslo in ga dvakrat vnesti. Vaše geslo mora biti dolgo vsaj %d znakov.\n\nZapomnite si geslo, ker brez njega ne boste mogli dostopati do svojih računov. Če geslo pozabite, ga ni možno obnoviti.</string>
+ 	<string name="newpassword_button_set">Nastavi geslo</string>
+ 	<string name="newpassword_passwords_do_not_match">Gesli se ne ujemata.</string>
+ 	<string name="newpassword_password_too_short">Geslo mora biti dolgo vsaj %d znakov.</string>
+ 	<string name="newpassword_password_set">Geslo je bilo nastavljeno. Ko boste pritisnili "V redu", bom ustvaril ključe. To lahko traja...</string>
+ 	 
+ 	<string name="newaccount_title">Nov račun</string>
+ 	<string name="newaccount_description">Prosim izberite ali vnesite strežnik. Strežnik se lahko vnese ročno ali pa se skenira QR koda strežnika.</string>
+ 	 	<string name="newaccount_register_generatingrsa">Generiram javni/privatni par ključev za nov račun na %1$s:%2$d</string>
+ 	<string name="newaccount_register_rsagenerated">RSA-%1$s par ključev ustvarjen: %2$d ms.</string>
+ 	<string name="newaccount_register_withserver">Registriram identiteto na strežniku....</string>
+ 	<string name="newaccount_register_success">Račun ustvarjen.</string>
+ 	<string name="newaccount_register_fail">Ustvarjanje računa ni uspelo.</string>
+ 	
+ 	<string name="exportidentity_title">Izvozi identiteto</string>
+ 	<string name="exportidentity_description">Prosim izberite identito za izvoz. Če na seznamu ni identitet, najprej ustvarite račun. Klik na identiteto bo pognal generiranje QR kode, dolgi klik bo kopiral URL na odložišče.</string>
+ 	<string name="exportidentity_clipboard">URL identitete je bil shranjen na odložišče.</string>
+	<string name="newcontactadd_title">Dodaj kontakt</string>
+ 	<string name="newcontactadd_description">Prosim izberite ali ustvarite račun, kamor želite dodati kontakt</string>
+ 	<string name="text_nick">Vzdevek</string>
+ 	<string name="text_phone">Telefon</string> 
+ 	<string name="text_browse">Brskaj</string>
+ 	<string name="newcontactadd_newaccount">Ustvari račun</string>
+ 	<string name="newcontactadd_gotuser">Podatki o kontaktu pridobljeni.</string>
+ 	<string name="newcontactadd_failuser">Pridobivanje podatkov o kontaktu s strežnika ni uspelo.</string>
+ 	<string name="newcontactadd_newcontactadd_that_is_me">To je vaš lasten račun.</string>
+ 	<string name="newcontactadd_already_added">Ta kontakt ste že dodali: %s.</string>
+	<string name="text_me">Jaz</string> 	
+ 	<string name="date_format">%1$te.%1$tm.%1$tY %1$tH:%1$tM:%1$tS</string>
+ 	<string name="waiting_messages">Nova sporočila: %d</string>
+ 	<string name="received_sms_unknown_phone">Prejel SMS iz neznanega telefona</string>
+ 	<string name="cant_decode_received_sms">Napaka pri dekodiranju SMS sporočila (napačen HMAC).</string>
+	<string name="editcontact">Uredi kontakt</string>
+	<string name="timestamp_smaller_or_equal_replay">NAPAKA: Prejeta časovna koda sporočila manjša ali enaka prejšnjemu sporočilo. Možen napad s ponovitvijo sporočila!</string>
+	<string name="wrong_signature">NAPAKA: Napačen podpis.</string>
+	<string name="no_forward_secrecy">Seja ni vzpostavljena, ni dolgoročne varnosti komunikacije. Obe strani morata poslati sporočilo, da se zaključi ECDH.</string>
+	<string name="forward_secrecy_ok">Seja je vzpostavljena.</string>
+	<string name="buttons_delete">Briši</string>
+	<string name="confirm_delete_contact">Ali ste prepričani, da želite izbrisati ta kontakt?</string>
+	</resources>  
