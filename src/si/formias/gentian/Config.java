@@ -612,13 +612,29 @@ public class Config {
 	}
 
 	public void wipe() {
-		if (masterProvider != null)
-			masterProvider.wipe();
-		if (walletProvider != null)
-			walletProvider.wipe();
-		if (walletProvider2 != null)
-			walletProvider2.wipe();
-		Util.wipe(aes);
+		try {
+			if (masterProvider != null)
+				masterProvider.wipe();
+		} catch (Exception e) {
+
+		}
+		try {
+			if (walletProvider != null)
+				walletProvider.wipe();
+		} catch (Exception e) {
+
+		}
+		try {
+			if (walletProvider2 != null)
+				walletProvider2.wipe();
+		} catch (Exception e) {
+
+		}
+		try {
+			Util.wipe(aes);
+		} catch (Exception e) {
+
+		}
 
 	}
 }

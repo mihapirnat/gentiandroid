@@ -724,7 +724,7 @@ Thread
 
 	@Override
 	protected void onDestroy() {
-		wipe();
+		
 		// TODO Auto-generated method stub
 		super.onDestroy();
 		try {
