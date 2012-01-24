@@ -98,6 +98,7 @@ public class EditContactDialog {
 					}
 					
 					main.config.saveConfig();
+					main.contacts.updateContacts();
 					main.removeDialog(viewDialog);
 					viewDialog.cancel();
 

@@ -104,6 +104,16 @@ public class GentianAccount extends Node {
 			buddies.add(buddy);
 		}
 	}
+	
+	@Override
+	public boolean remove(Node n) {
+		if (n instanceof GentianBuddy) {
+			GentianBuddy buddy=(GentianBuddy)n;
+			buddy.account=null;
+			buddies.remove(buddy);
+		}
+		return super.remove(n);
+	}
 	private void setServer(String server) {
 		setTextOf(SERVER, server);
 	}

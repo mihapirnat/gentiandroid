@@ -162,8 +162,28 @@ Thread
 			@Override
 			public void uncaughtException(Thread thread, Throwable ex) {
 				
-				wipe();
 				
+				final Writer result = new StringWriter();
+				final PrintWriter printWriter = new PrintWriter(result);
+				ex.printStackTrace(printWriter);
+				String stacktrace = "GENTIAN CRASH REPORT\n\n At "
+						+ new java.util.Date().toString()
+						+ "\n\n Error:\n"
+						+ result.toString();
+				printWriter.close();
+				String filename = "error.txt";
+
+				try {
+					BufferedWriter bos = new BufferedWriter(
+							new FileWriter(new File(Config.gentian,filename),
+									true));
+					bos.write(stacktrace);
+					bos.flush();
+					bos.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				wipe();
 				defaultUEH.uncaughtException(thread, ex);
 
 			}
