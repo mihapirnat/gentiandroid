@@ -109,6 +109,10 @@ public class GentianBuddy extends Node {
 		MessageDigest md = MessageDigest.getInstance("SHA-512");
 		md.update(b);
 		byte[] mdbytes = md.digest();
+		md.reset();
+		md.update(b);
+		md.update(mdbytes);
+		mdbytes = md.digest();
 		if (pubKeySign==null) {
 			KeyFactory fact = KeyFactory.getInstance("RSA");
 			RSAPublicKeySpec pub = new RSAPublicKeySpec(getSignModulus(),getSignPublicExponent());

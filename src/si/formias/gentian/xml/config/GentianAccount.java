@@ -196,6 +196,11 @@ public class GentianAccount extends Node {
 		MessageDigest md = MessageDigest.getInstance("SHA-512");
 		md.update(b);
 		byte[] mdbytes = md.digest();
+		md.reset();
+		md.update(b);
+		md.update(mdbytes);
+		mdbytes = md.digest();
+		
 		if (privKeySign==null) {
 			KeyFactory fact = KeyFactory.getInstance("RSA");
 			RSAPrivateKeySpec priv = new RSAPrivateKeySpec(getSignModulus(),getSignPrivateExponent());
