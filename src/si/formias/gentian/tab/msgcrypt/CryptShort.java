@@ -74,7 +74,7 @@ public class CryptShort {
 	static final String CODE_NEW_KEY = "N";
 	
 	static final int COUNTLIMIT = 200;
-	static boolean debug = true;
+	static boolean debug = false;
 	static final int[] ALGORITHM = { GentianCrypt.Serpent, GentianCrypt.AES,
 			GentianCrypt.Twofish };
 
@@ -216,19 +216,19 @@ public class CryptShort {
 						}		
 						cut=Util.splitBytes(b,b.length/2);
 						byte[] pad = cut[0];
-						byte[] xored=cut[1];
+						b=cut[1];
 						for (int i = keys.length - 1; i >= 1; i-=2) {
 							if (debug) {
 								System.out.println("Pad Using key: "+Base64.encodeToString(keys[i], false));
 							}
 							
-							pad = GentianCrypt.decrypt(keys[i], iv, pad, false,
+							pad = GentianCrypt.decrypt(keys[i], iv, pad, i == 1,
 									ALGORITHM[i % ALGORITHM.length]);
 							if (debug) {
 								System.out.println("Result: "+Base64.encodeToString(pad, false));
 							}
 						}
-						b=xor(pad,xored);
+						
 						for (int i = keys.length - 2; i >= 0; i-=2) {
 							if (debug) {
 								System.out.println("Text Using key: "+Base64.encodeToString(keys[i], false));
@@ -240,7 +240,7 @@ public class CryptShort {
 								System.out.println("Result: "+Base64.encodeToString(b, false));
 							}
 						}
-						
+						b=xor(pad,b);
 						msg = b;
 
 						cut = cut(msg, 32);
@@ -582,7 +582,22 @@ public class CryptShort {
 				if (debug) {
 					System.out.println("session using "+keys.length+" keys...");
 				}
-				
+
+				byte[] pad=new byte[b.length];
+				r.nextBytes(pad);
+				byte[] padcrypted=Util.copy(pad);
+				for (int i = 1; i < keys.length; i+=2) {
+					if (debug) {
+						System.out.println("Pad Using key: "+Base64.encodeToString(keys[i], false));
+					}
+					padcrypted = GentianCrypt.encrypt(keys[i], iv, padcrypted, i == 1,
+							ALGORITHM[i % ALGORITHM.length]);
+					if (debug) {
+						System.out.println("Result: "+Base64.encodeToString(padcrypted, false));
+					}
+
+				}
+				b=xor(pad,b);
 				for (int i = 0; i < keys.length; i+=2) {
 					if (debug) {
 						System.out.println("Text Using key: "+Base64.encodeToString(keys[i], false));
@@ -594,24 +609,11 @@ public class CryptShort {
 					}
 
 				}
-				byte[] pad=new byte[b.length];
-				r.nextBytes(pad);
-				byte[] padcrypted=Util.copy(pad);
-				for (int i = 1; i < keys.length; i+=2) {
-					if (debug) {
-						System.out.println("Pad Using key: "+Base64.encodeToString(keys[i], false));
-					}
-					padcrypted = GentianCrypt.encrypt(keys[i], iv, padcrypted, false,
-							ALGORITHM[i % ALGORITHM.length]);
-					if (debug) {
-						System.out.println("Result: "+Base64.encodeToString(padcrypted, false));
-					}
 
-				}
 				
 				
 				
-				b = join(iv, join(padcrypted,xor(pad,b)));
+				b = join(iv, join(padcrypted,b));
 				String s = new String(Base91.encode(b), "latin1");
 
 				buddy.set(COUNTENCRYPT, Integer.toString(Integer.parseInt(buddy
@@ -809,8 +811,7 @@ public class CryptShort {
 	}
 	public static boolean forwardSecrecy(GentianBuddy buddy) {
 		if (buddy.get(TMPKEYENCRYPT)!=null && Base64.decode(buddy.get(TMPKEYENCRYPT)).length>KEYSLEN) {
-			return (buddy.get(COUNTENCRYPT) != null
-					&& buddy.get(TMPHMACENCRYPT) != null
+			return (buddy.get(COUNTENCRYPT) != null					
 					&& Integer.parseInt(buddy.get(COUNTENCRYPT)) < COUNTLIMIT);
 			
 		}

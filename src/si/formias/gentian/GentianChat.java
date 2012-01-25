@@ -724,7 +724,7 @@ Thread
 
 	@Override
 	protected void onDestroy() {
-		
+		if (activeChat==this) activeChat=null;
 		// TODO Auto-generated method stub
 		super.onDestroy();
 		try {
@@ -1015,7 +1015,7 @@ Thread
 	protected void onPause() {
 		// TODO Auto-generated method stub
 		super.onPause();
-		if (activeChat==this) activeChat=null;
+		
 		if (config.inited) {
 			doUnbindService();
 		}
