@@ -304,6 +304,9 @@ public class Config {
 			if (!equal(check, salt)) {
 				// System.out.println("*** WRONG PASS");
 				this.check = check;
+				walletProvider=null;
+				walletProvider2=null;
+				masterProvider=null;
 				return false;
 			} else {
 				// System.out.println("*** PAsS OK");

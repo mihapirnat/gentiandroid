@@ -59,8 +59,8 @@ public class Util {
 	   }
 	   public static byte[] encryptPassword(byte[] salt,byte[] bytes) throws NoSuchAlgorithmException, UnsupportedEncodingException {   
 			MessageDigest md = MessageDigest.getInstance("SHA-512");
-			byte[] saltFixed="Remember remember".getBytes();
-			
+			byte[] saltFixed="Remember remember".getBytes("utf-8");
+			System.out.println("pass hash: "+Base64.encodeToString(bytes, false)+" fixed salt:"+Base64.encodeToString(saltFixed, false));
 			
 			for (int i=0;i<1024;i++) {
 				md.reset();
