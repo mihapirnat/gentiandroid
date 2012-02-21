@@ -1015,7 +1015,7 @@ Thread
 	protected void onPause() {
 		// TODO Auto-generated method stub
 		super.onPause();
-		
+		activeChat=null;
 		if (config.inited) {
 			doUnbindService();
 		}
@@ -1027,6 +1027,7 @@ Thread
 		if (config.inited) {
 			doBindService();
 			activeChat=this;
+			readSMS();
 		}
 	}
 	

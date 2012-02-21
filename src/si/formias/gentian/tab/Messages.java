@@ -38,6 +38,7 @@ public class Messages extends Tab {
 	Context context;
 	public static GentianChat staticmain;
 	TextView secrecyStatus;
+	EditText sendText;
 	public Messages(GentianChat main) {
 		super(main);
 		this.main=main;
@@ -69,7 +70,7 @@ public class Messages extends Tab {
 			center.addView(l);
 		}
 		currentBuddy=buddy;
-		final EditText sendText=new EditText(context);
+		sendText=new EditText(context);
 	/*	sendText.setImeOptions(sendText.getImeOptions()
 				| EditorInfo.IME_FLAG_NO_EXTRACT_UI);*/
 		Button sendButton=new Button(context);
@@ -196,14 +197,19 @@ public class Messages extends Tab {
 	}
 	static class MessagesState {
 		GentianBuddy buddy;
+		String textLine;
 	}
 	@Override
 	public void loadState(Object o) {
 		try {
 			MessagesState state = (MessagesState) o;
-			
-			if (state.buddy!=null) {
-				startConversation(state.buddy, main.contacts.getLog(state.buddy.getUser()));
+			if (state!=null) {
+				if (state.buddy!=null) {
+					startConversation(state.buddy, main.contacts.getLog(state.buddy.getUser()));
+				}
+				if (state.textLine!=null) {
+					sendText.setText(state.textLine);
+				}
 			}
 		} catch (Exception e) {
 			
@@ -213,6 +219,7 @@ public class Messages extends Tab {
 	public Object saveState() {
 		MessagesState state = new MessagesState();
 		state.buddy=currentBuddy;
+		state.textLine=sendText.getText().toString();
 		return state;
 	}
 	private String encrypt(GentianBuddy buddy, String text) {
