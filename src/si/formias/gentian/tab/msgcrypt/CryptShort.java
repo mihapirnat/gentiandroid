@@ -73,8 +73,8 @@ public class CryptShort {
 	static final String CODE_KEEP_KEY = "K";
 	static final String CODE_NEW_KEY = "N";
 	
-	static final int COUNTLIMIT = 200;
-	static boolean debug = false;
+	static final int COUNTLIMIT = 100;
+	static boolean debug = true;
 	static final int[] ALGORITHM = { GentianCrypt.Serpent, GentianCrypt.AES,
 			GentianCrypt.Twofish };
 
@@ -225,7 +225,7 @@ public class CryptShort {
 							pad = GentianCrypt.decrypt(keys[i], iv, pad, i == 1,
 									ALGORITHM[i % ALGORITHM.length]);
 							if (debug) {
-								System.out.println("Result: "+Base64.encodeToString(pad, false));
+								System.out.println("Result: "+Base64.encodeToString(pad, false)+" "+new String(pad,"utf-8"));
 							}
 						}
 						
@@ -237,7 +237,7 @@ public class CryptShort {
 							b = GentianCrypt.decrypt(keys[i], iv, b, i == 0,
 									ALGORITHM[i % ALGORITHM.length]);
 							if (debug) {
-								System.out.println("Result: "+Base64.encodeToString(b, false));
+								System.out.println("Result: "+Base64.encodeToString(b, false)+" "+new String(b,"utf-8"));
 							}
 						}
 						b=xor(pad,b);
@@ -597,7 +597,9 @@ public class CryptShort {
 					}
 
 				}
+				if (debug) System.out.println("xoring pad:"+Base64.encodeToString(pad, false)+" text:"+Base64.encodeToString(b, false));
 				b=xor(pad,b);
+				if (debug) System.out.println("xor result"+Base64.encodeToString(b, false));
 				for (int i = 0; i < keys.length; i+=2) {
 					if (debug) {
 						System.out.println("Text Using key: "+Base64.encodeToString(keys[i], false));
@@ -689,7 +691,7 @@ public class CryptShort {
 					extrabytes = GentianCrypt.encrypt(keys[i], iv2, extrabytes,
 							i == 0, ALGORITHM[i % ALGORITHM.length]);
 					if (debug) {
-						System.out.println("Result: "+Base64.encodeToString(b, false));
+						System.out.println("Result: "+Base64.encodeToString(extrabytes, false));
 					}
 
 				}
