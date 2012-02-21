@@ -74,7 +74,7 @@ public class CryptShort {
 	static final String CODE_NEW_KEY = "N";
 	
 	static final int COUNTLIMIT = 100;
-	static boolean debug = true;
+	static boolean debug = false;
 	static final int[] ALGORITHM = { GentianCrypt.Serpent, GentianCrypt.AES,
 			GentianCrypt.Twofish };
 
