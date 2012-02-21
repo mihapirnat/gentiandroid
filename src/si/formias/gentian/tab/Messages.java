@@ -25,6 +25,7 @@ import si.formias.gentian.xml.messages.Message;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.text.Editable;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
@@ -219,7 +220,12 @@ public class Messages extends Tab {
 	public Object saveState() {
 		MessagesState state = new MessagesState();
 		state.buddy=currentBuddy;
-		state.textLine=sendText.getText().toString();
+		if (sendText!=null) {
+			Editable e = sendText.getText();
+			if (e!=null) {
+				state.textLine=e.toString();
+			}
+		}
 		return state;
 	}
 	private String encrypt(GentianBuddy buddy, String text) {
