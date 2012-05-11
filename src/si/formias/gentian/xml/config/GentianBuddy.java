@@ -7,9 +7,15 @@ import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.interfaces.ECPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -25,8 +31,8 @@ import si.formias.gentian.xml.Node;
 public class GentianBuddy extends Node {
 	public static final String USER="User";
 	static final String NICK="Nick";
-	public static final String SIGNMODULUS="SignModulus";
-	public static final String SIGNPUBLICEXPONENT="SignPublicExponent";
+	
+	public static final String SIGNPUBLIC="SignPublicEC";
 	public static final String CRYPTMODULUS="CryptModulus";
 	public static final String CRYPTPUBLICEXPONENT="CryptPublicExponent";
 	static final String WAITING="WaitingMessages";
@@ -34,12 +40,11 @@ public class GentianBuddy extends Node {
 	public GentianBuddy(Attributes attributes) throws SAXException {
 		super("GentianBuddy", attributes);
 	}
-	public GentianBuddy(String user,String nick,String signModulus,String signPublicExponent,String cryptModulus,String cryptPublicExponent) throws SAXException {
+	public GentianBuddy(String user,String nick,String signPublic,String cryptModulus,String cryptPublicExponent) throws SAXException {
 		super("GentianBuddy", null);
 		setUser(user);
 		setNick(nick);
-		setSignModulus(new BigInteger(Base64.decode(signModulus)));
-		setSignPublicExponent(new BigInteger(Base64.decode(signPublicExponent)));
+		setSignPublicEC(Base64.decode(signPublic));
 		setCryptModulus(new BigInteger(Base64.decode(cryptModulus)));
 		setCryptPublicExponent(new BigInteger(Base64.decode(cryptPublicExponent)));
 	}
@@ -49,12 +54,10 @@ public class GentianBuddy extends Node {
 	public void setNick(String nick) {
 		setTextOf(NICK,nick);
 	}
-	private void setSignModulus(BigInteger modulus) {
-		setTextOf(SIGNMODULUS,Base64.encodeToString(modulus.toByteArray(),false));
-	}
+	
 
-	private void setSignPublicExponent(BigInteger privateExponent) {
-		setTextOf(SIGNPUBLICEXPONENT,Base64.encodeToString(privateExponent.toByteArray(),false));
+	private void setSignPublicEC(byte[] signPublicBytes) {
+		setTextOf(SIGNPUBLIC,Base64.encodeToString(signPublicBytes,false));
 	}
 	private void setCryptModulus(BigInteger modulus) {
 		setTextOf(CRYPTMODULUS,Base64.encodeToString(modulus.toByteArray(),false));
@@ -77,12 +80,9 @@ public class GentianBuddy extends Node {
 			return s;
 		}
 	}
-	public BigInteger getSignModulus() {
-		String m =textOf(SIGNMODULUS);
-		return new BigInteger(Base64.decode(m));
-	}
-	public BigInteger getSignPublicExponent() {
-		return new BigInteger(Base64.decode(textOf(SIGNPUBLICEXPONENT)));
+	
+	public byte[] getSignPublicEC() {
+		return Base64.decode(textOf(SIGNPUBLIC));
 	}
 	public BigInteger getCryptModulus() {
 		String m =textOf(CRYPTMODULUS);
@@ -105,24 +105,17 @@ public class GentianBuddy extends Node {
 		return cipher.doFinal(b);	
 	}
 	
-	public boolean verifySignature(byte[] b,byte[] signature) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-		MessageDigest md = MessageDigest.getInstance("SHA-512");
-		md.update(b);
-		byte[] mdbytes = md.digest();
-		md.reset();
-		md.update(b);
-		md.update(mdbytes);
-		mdbytes = md.digest();
+	public boolean verifySignature(byte[] b,byte[] signatureBytes) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException, SignatureException {
+
 		if (pubKeySign==null) {
-			KeyFactory fact = KeyFactory.getInstance("RSA");
-			RSAPublicKeySpec pub = new RSAPublicKeySpec(getSignModulus(),getSignPublicExponent());
-			pubKeySign = fact.generatePublic(pub);
+             pubKeySign=decodePublic(getSignPublicEC());
+            
 		}
-		Cipher cipher = Cipher.getInstance("RSA/NONE/OAEPWithSHA256AndMGF1Padding");
-		cipher.init(Cipher.DECRYPT_MODE, pubKeySign);
-		
-		return Util.equal(mdbytes,cipher.doFinal(signature));
-		
+		Signature signature = Signature.getInstance("SHA384/ECDSA","SC");
+        signature.initVerify(pubKeySign);
+        signature.update(b);
+        return signature.verify(signatureBytes);
+	
 	}
 	public GentianAccount getAccount() {
 		return	account;
@@ -144,6 +137,11 @@ public class GentianBuddy extends Node {
 	public String getTarget() {
 		return textOf(TARGET);
 	}
-
+	private static ECPublicKey decodePublic(byte[] pubEnc) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException {
+		KeyFactory          keyFac = KeyFactory.getInstance("ECDSA", "SC");
+        X509EncodedKeySpec  pubX509 = new X509EncodedKeySpec(pubEnc);
+        ECPublicKey         pubKey = (ECPublicKey)keyFac.generatePublic(pubX509);
+        return pubKey;
+	}
 	
 }

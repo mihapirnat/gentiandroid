@@ -76,7 +76,7 @@ System.out.println("main.config.configData:"+main.config.configData);
 					okButton.setText(acc.getUser()+"@"+acc.getServer()+":"+acc.getPort());
 					icon.setImageResource(R.drawable.torcontact);
 				}
-				final String url="gentian://"+acc.getServer()+":"+acc.getPort()+"/"+acc.getUser().replace("+","-").replace("/", "|")+(exportKey?"/"+acc.getCryptModulusString().replace("+","-").replace("/", "|")+"/"+acc.getCryptPublicExponentString().replace("+","-").replace("/", "|")+"/"+acc.getSignModulusString().replace("+","-").replace("/", "|")+"/"+acc.getSignPublicExponentString().replace("+","-").replace("/", "|"):"");
+				final String url="gentian://"+acc.getServer()+":"+acc.getPort()+"/"+acc.getUser().replace("+","-").replace("/", "|")+(exportKey?"/"+acc.getCryptModulusString().replace("+","-").replace("/", "|")+"/"+acc.getCryptPublicExponentString().replace("+","-").replace("/", "|")+"/"+acc.getSignPublic().replace("+","-").replace("/", "|"):"");
 				OnClickListener click =new OnClickListener() {
 
 					@Override

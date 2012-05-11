@@ -3,17 +3,25 @@ package si.formias.gentian.xml.config;
 import gentian.util.Base64;
 
 import java.math.BigInteger;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.interfaces.ECPrivateKey;
+import java.security.spec.ECGenParameterSpec;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -24,6 +32,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+
 
 
 import org.xml.sax.Attributes;
@@ -41,19 +50,21 @@ public class GentianAccount extends Node {
 	static final String CRYPTMODULUS="CryptModulus";
 	static final String CRYPTPUBLICEXPONENT="CryptPublicExponent";
 	static final String CRYPTPRIVATEEXPONENT="CryptPrivateExponent";
-	static final String SIGNMODULUS="SignModulus";
-	static final String SIGNPUBLICEXPONENT="SignPublicExponent";
-	static final String SIGNPRIVATEEXPONENT="SignPrivateExponent";
+	//static final String SIGNMODULUS="SignModulus";
+	//static final String SIGNPUBLICEXPONENT="SignPublicExponent";
+	//static final String SIGNPRIVATEEXPONENT="SignPrivateExponent";
+	static final String SIGNPUBLIC="SignPublicEC";
+	static final String SIGNPRIVATE="SignPrivateEC";
 	static final String TAIL="Tail";
 	public static final String SMS="SMS";
 	public GentianAccount(Attributes attributes)
 			throws SAXException {
 		super("GentianAccount", attributes);
 	}
-	public GentianAccount() throws SAXException, NoSuchAlgorithmException, InvalidKeySpecException {
+	public GentianAccount() throws SAXException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException, InvalidAlgorithmParameterException {
 		this(SMS,0);
 	}
-	public GentianAccount(String server, int port) throws SAXException, NoSuchAlgorithmException, InvalidKeySpecException {
+	public GentianAccount(String server, int port) throws SAXException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException, InvalidAlgorithmParameterException {
 		super("GentianAccount", null);
 		KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
 		/*if (server.equals(SMS)) {
@@ -84,7 +95,14 @@ public class GentianAccount extends Node {
 		setCryptPublicExponent(pub.getPublicExponent());
 		setCryptPrivateExponent(priv.getPrivateExponent());
 		
-		kp = kpg.genKeyPair();
+		KeyPairGenerator g = KeyPairGenerator.getInstance("ECDSA", "SC");
+
+		ECGenParameterSpec ecSpec = new ECGenParameterSpec("prime256v1");
+		g.initialize(ecSpec, new SecureRandom());
+		KeyPair aKeyPair = g.generateKeyPair();
+		setSignPublicEC(aKeyPair.getPublic().getEncoded());
+		setSignPrivateEC(aKeyPair.getPrivate().getEncoded());
+		/*kp = kpg.genKeyPair();
 		fact = KeyFactory.getInstance("RSA");
 		pub = fact.getKeySpec(kp.getPublic(),
 				RSAPublicKeySpec.class);
@@ -93,7 +111,7 @@ public class GentianAccount extends Node {
 
 		setSignModulus(pub.getModulus());
 		setSignPublicExponent(pub.getPublicExponent());
-		setSignPrivateExponent(priv.getPrivateExponent());
+		setSignPrivateExponent(priv.getPrivateExponent());*/
 	}
 	@Override
 	public void add(Node n) {
@@ -135,15 +153,13 @@ public class GentianAccount extends Node {
 	private void setCryptPublicExponent(BigInteger privateExponent) {
 		setTextOf(CRYPTPUBLICEXPONENT,Base64.encodeToString(privateExponent.toByteArray(),false));
 	}
-	private void setSignModulus(BigInteger modulus) {
-		setTextOf(SIGNMODULUS,Base64.encodeToString(modulus.toByteArray(),false));
+	private void setSignPrivateEC(byte[] encoded) {
+		setTextOf(SIGNPRIVATE,Base64.encodeToString(encoded,false));
 	}
-	private void setSignPrivateExponent(BigInteger privateExponent) {
-		setTextOf(SIGNPRIVATEEXPONENT,Base64.encodeToString(privateExponent.toByteArray(),false));
+	private void setSignPublicEC(byte[] encoded) {
+		setTextOf(SIGNPUBLIC,Base64.encodeToString(encoded,false));
 	}
-	private void setSignPublicExponent(BigInteger privateExponent) {
-		setTextOf(SIGNPUBLICEXPONENT,Base64.encodeToString(privateExponent.toByteArray(),false));
-	}
+	
 	public String getServer() {
 		return textOf(SERVER);
 	}
@@ -170,15 +186,13 @@ public class GentianAccount extends Node {
 	public BigInteger getCryptPublicExponent() {
 		return new BigInteger(Base64.decode(textOf(CRYPTPUBLICEXPONENT)));
 	}
-	public BigInteger getSignModulus() {
-		return new BigInteger(Base64.decode(textOf(SIGNMODULUS)));
+	public byte[] getSignPublicEC() {
+		return Base64.decode(textOf(SIGNPUBLIC));
 	}
-	private BigInteger getSignPrivateExponent() {
-		return new BigInteger(Base64.decode(textOf(SIGNPRIVATEEXPONENT)));
+	private byte[] getSignPrivateEC() {
+		return Base64.decode(textOf(SIGNPRIVATE));
 	}
-	public BigInteger getSignPublicExponent() {
-		return new BigInteger(Base64.decode(textOf(SIGNPUBLICEXPONENT)));
-	}
+	
 	private transient PrivateKey privKeyCrypt,privKeySign;
 	public byte[] decryptIncoming(byte[] b) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
 		if (privKeyCrypt==null) {
@@ -192,24 +206,18 @@ public class GentianAccount extends Node {
 		return cipher.doFinal(b);	
 	}
 	
-	public byte[] signOutgoing(byte[] b) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-		MessageDigest md = MessageDigest.getInstance("SHA-512");
-		md.update(b);
-		byte[] mdbytes = md.digest();
-		md.reset();
-		md.update(b);
-		md.update(mdbytes);
-		mdbytes = md.digest();
+	public byte[] signOutgoing(byte[] b) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException, SignatureException {
 		
 		if (privKeySign==null) {
-			KeyFactory fact = KeyFactory.getInstance("RSA");
-			RSAPrivateKeySpec priv = new RSAPrivateKeySpec(getSignModulus(),getSignPrivateExponent());
-			privKeySign = fact.generatePrivate(priv);
+             privKeySign=decodePrivate(getSignPrivateEC());
+            
 		}
-		Cipher cipher = Cipher.getInstance("RSA/NONE/OAEPWithSHA256AndMGF1Padding");
-		cipher.init(Cipher.ENCRYPT_MODE, privKeySign);
-		
-		return cipher.doFinal(mdbytes);
+		Signature signature = Signature.getInstance("SHA384/ECDSA","SC");
+        signature.initSign(privKeySign);
+        signature.update(b);
+		byte[] bytes= signature.sign();
+		System.out.println("Signature length: "+bytes.length);
+		return bytes;
 		
 	}
 	
@@ -221,11 +229,9 @@ public class GentianAccount extends Node {
 		return getUser()+"@"+getServer()+":"+getPort();
 		}
 	}
-	public String getSignModulusString() {
-		return textOf(SIGNMODULUS);
-	}
-	public String getSignPublicExponentString() {
-		return textOf(SIGNPUBLICEXPONENT);
+
+	public String getSignPublic() {
+		return textOf(SIGNPUBLIC);
 	}
 	public String getCryptModulusString() {
 		return textOf(CRYPTMODULUS);
@@ -259,4 +265,10 @@ public class GentianAccount extends Node {
 		return target2user.get(target);
 	}
 	
+	private static ECPrivateKey decodePrivate(byte[] privEnc) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException {
+		KeyFactory          keyFac = KeyFactory.getInstance("ECDSA", "SC"); 
+	        PKCS8EncodedKeySpec privPKCS8 = new PKCS8EncodedKeySpec(privEnc);
+	        ECPrivateKey        privKey = (ECPrivateKey)keyFac.generatePrivate(privPKCS8);
+	        return privKey;
+	}
 }

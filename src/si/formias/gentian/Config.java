@@ -60,7 +60,7 @@ public class Config {
 	boolean inited;
 	public byte[] check;
 	public static GentianChat gentianChat;
-	public final int SAVEPREFIX = 32;
+	public final int SAVEPREFIX = 40;
 	byte[][] aes;
 	static {
 		{
@@ -334,7 +334,7 @@ public class Config {
 
 				try {
 					configData.add(new GentianAccount());
-				} catch (InvalidKeySpecException e) {
+				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}

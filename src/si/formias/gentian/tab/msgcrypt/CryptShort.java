@@ -35,7 +35,7 @@ import javax.crypto.KeyAgreement;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.bouncycastle.crypto.macs.HMac;
+import org.spongycastle.crypto.macs.HMac;
 
 import si.formias.gentian.Base91;
 import si.formias.gentian.GentianChat;
@@ -47,8 +47,8 @@ import si.formias.gentian.xml.config.GentianBuddy;
 
 import org.spongycastle.jce.ECPointUtil;
 import org.spongycastle.util.encoders.Hex;
-import org.bouncycastle.jce.spec.ECNamedCurveSpec;
-import org.bouncycastle.jce.ECNamedCurveTable;
+import org.spongycastle.jce.spec.ECNamedCurveSpec;
+import org.spongycastle.jce.ECNamedCurveTable;
 
 import static si.formias.gentian.Util.wipe;
 
@@ -57,6 +57,7 @@ public class CryptShort {
 	//static final int EXTRA_START = 207;
 	static final int EXTRA_START = 25;
 	static final int BLOCK_LEN = 384;
+	static final int SIGNATURE_LEN = 71;
 	public static final String TMPKEYENCRYPT = "TMPKEYENCRYPT";
 	public static final String TMPKEYDECRYPT = "TMPKEYDECRYPT";
 	public static final String TMPHMACENCRYPT = "TMPHMACENCRYPT";
@@ -243,11 +244,11 @@ public class CryptShort {
 						b=xor(pad,b);
 						msg = b;
 
-						cut = cut(msg, 32);
+						cut = cut(msg, 20);
 						byte[] digest = cut[0];
 						msg = cut[1];
 
-						Mac mac = Mac.getInstance("HmacSHA256");
+						Mac mac = Mac.getInstance("HmacSHA1");
 						SecretKeySpec secret = new SecretKeySpec(hmac, mac
 								.getAlgorithm());
 						mac.init(secret);
@@ -418,7 +419,7 @@ public class CryptShort {
 				byte[] msg = b;
 
 				// cut = cut(msg,32);
-				cut = cut(msg, BLOCK_LEN);
+				cut = cut(msg, SIGNATURE_LEN);
 				// byte[] digest=cut[0];
 				byte[] signature = cut[0];
 				msg = cut[1];
@@ -566,7 +567,7 @@ public class CryptShort {
 
 				b = join(createTimestamp(), b);
 				
-				Mac mac = Mac.getInstance("HmacSHA256");
+				Mac mac = Mac.getInstance("HmacSHA1");
 				SecretKeySpec secret = new SecretKeySpec(Base64.decode(buddy
 						.get(TMPHMACENCRYPT)), mac.getAlgorithm());
 				mac.init(secret);

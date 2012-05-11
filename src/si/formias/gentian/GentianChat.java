@@ -111,7 +111,7 @@ import static si.formias.gentian.Util.*;
 public class GentianChat extends Activity {
 	NotificationManager mNM;
 	public static volatile GentianChat activeChat;
-	public static final boolean CONVERTPHONENUMBERS=true;
+	public static final boolean CONVERTPHONENUMBERS=true; 
 	public static volatile boolean running;
 	private static final int PICK_CONTACT = 1001;
 	volatile boolean inited = false;
@@ -837,8 +837,8 @@ Thread
 					} else {
 						final String cryptModulusString =second.replace("-","+").replace("|","/");;
 						final String cryptPublicExponentString =third.replace("-","+").replace("|","/");;
-						final String signModulusString =fourth.replace("-","+").replace("|","/");;
-						final String signPublicExponentString =fifth.replace("-","+").replace("|","/");;
+						final String signPublic =fourth.replace("-","+").replace("|","/");;
+						
 						//System.out.println("New contact");
 						new NewContactAddDialog(GentianChat.this, new NewContactAddDialog.CallBack() {
 							
@@ -868,8 +868,8 @@ Thread
 									buddy.setTextOf(GentianBuddy.USER,user);
 									buddy.setTextOf(GentianBuddy.CRYPTPUBLICEXPONENT,cryptPublicExponentString);
 									buddy.setTextOf(GentianBuddy.CRYPTMODULUS, cryptModulusString);
-									buddy.setTextOf(GentianBuddy.SIGNPUBLICEXPONENT,signPublicExponentString);
-									buddy.setTextOf(GentianBuddy.SIGNMODULUS, signModulusString);
+									buddy.setTextOf(GentianBuddy.SIGNPUBLIC,signPublic);
+									
 									
 									buddy.setTextOf(GentianBuddy.TARGET,phone);
 									acc.add(buddy);
@@ -1096,14 +1096,7 @@ Thread
 					e1.printStackTrace();
 				}
 			
-			} catch (NoSuchAlgorithmException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvalidKeySpecException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SAXException e) {
-				// TODO Auto-generated catch block
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			super.run();
