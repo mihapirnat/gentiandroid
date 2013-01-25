@@ -802,15 +802,16 @@ Thread
 			String scheme = data.getScheme(); // "http"
 			String host = data.getHost(); // "twitter.com"
 			List<String> params = data.getPathSegments();
-			//System.out.println("Scheme: " + scheme);
-//			System.out.println("Host: " + host);
-	//		System.out.println("Port: " + data.getPort());
+			System.out.println("Scheme: " + scheme);
+			System.out.println("Host: " + host);
+			System.out.println("Port: " + data.getPort());
 			if (params.size() > 0) {
 				final String user = params.get(0).replace("-","+").replace("|","/");
 				String second="";
 				String third="";
 				String fourth="";
 				String fifth="";
+				System.out.println(params);
 		//		System.out.println("User:" + user);
 				if (params.size() > 1) {
 					second = params.get(1); // "1234"
@@ -826,7 +827,7 @@ Thread
 					}
 				}
 				 
-				if (scheme.equals("gentian")) {
+				if (scheme!=null && scheme.equals("gentian")) {
 					GentianBuddy buddy=null;
 					/*if (config.configData.getAccount(host,data.getPort(),user)!=null) {
 						System.out.println("This is me!");
@@ -854,7 +855,11 @@ Thread
 							@Override
 							public void existingAccountChosen(GentianAccount acc,String nick) {
 									//System.out.println("Use existing account "+acc);
-									registerContact(acc,user,nick);
+									try {
+										registerContact(acc,user,nick);
+									} catch (Exception e) {
+										displayNotice(GentianChat.this.getString(R.string.couldnotaddcontact));
+									}
 								
 							}
 
@@ -899,6 +904,8 @@ Thread
 						}, config.configData.getAccounts(host,data.getPort()),  host, data.getPort(),"");
 						
 					} 
+				} else {
+					displayNotice(GentianChat.this.getString(R.string.couldnotaddcontact));
 				}
 			}
 		}

@@ -54,7 +54,7 @@
  	<string name="newcontactadd_newcontactadd_that_is_me">To je vaš lasten račun.</string>
  	<string name="newcontactadd_already_added">Ta kontakt ste že dodali: %s.</string>
 	<string name="text_me">Jaz</string> 	
- 	<string name="date_format">%1$te.%1$tm.%1$tY %1$tH:%1$tM:%1$tS</string>
+ 	<string name="date_format">&#37;1$te.&#37;1$tm.&#37;1$tY &#37;1$tH:&#37;1$tM:&#37;1$tS</string>
  	<string name="waiting_messages">Nova sporočila: %d</string>
  	<string name="received_sms_unknown_phone">Prejel SMS iz neznanega telefona</string>
  	<string name="cant_decode_received_sms">Napaka pri dekodiranju SMS sporočila (napačen HMAC).</string>
@@ -66,4 +66,5 @@
 	<string name="buttons_delete">Briši</string>
 	<string name="confirm_delete_contact">Ali ste prepričani, da želite izbrisati ta kontakt?</string>
 	<string name="wrong_timestamp_smaller_or_equal_replay">Napaka: čas prejetega sporočila je bil manjši ali enak zadnjemu prejetemu. Možen napad s ponovitvijo sporočila! (replay)</string>
+	<string name="couldnotaddcontact">Dodajanje kontakta ni uspelo. Prosim, poskusite znova.</string>
 	</resources>  

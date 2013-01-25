@@ -5,14 +5,17 @@ import si.formias.gentian.dialog.NewContactAddDialog;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Build;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.Contacts;
 
 public class PhoneContact {
 	public void applyCallback(GentianChat activity,NewContactAddDialog contactCallBack, Intent data) {
+
+		try {
 		// http://stackoverflow.com/questions/866769/how-to-call-android-contacts-list
 		if (data==null) return;
-   	 Cursor cursor =  activity.managedQuery(data.getData(), null, null, null, null);      
+   	 Cursor cursor =  activity.getContentResolver().query(data.getData(), null, null, null, null);      
    	   while (cursor.moveToNext()) 
    	   {           
    	       String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
@@ -45,6 +48,10 @@ public class PhoneContact {
 
    	  }  //while (cursor.moveToNext())        
    	   cursor.close();
+		} catch (RuntimeException e ){
+			e.printStackTrace();
+			throw(e);
+		}
 
 	}
 

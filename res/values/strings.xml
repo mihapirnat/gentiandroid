@@ -56,7 +56,7 @@
  	<string name="newcontactadd_newcontactadd_that_is_me">This is your own account.</string>
  	<string name="newcontactadd_already_added">You have already added this contact: %s.</string>
  	<string name="text_me">Me</string>
- 	<string name="date_format">%1$tm %1$te, %1$tY %1$tH:%1$tM:%1$tS</string>
+ 	<string name="date_format">&#37;1$tm &#37;1$te, &#37;1$tY &#37;1$tH:&#37;1$tM:&#37;1$tS</string>
 	<string name="waiting_messages">New messages: %d</string>
 	<string name="received_sms_unknown_phone">Received SMS from unknown phone</string> 
 	<string name="cant_decode_received_sms">Error decoding SMS message (wrong HMAC).</string> 
@@ -67,6 +67,6 @@
 	<string name="forward_secrecy_ok">Session is established.</string>
 	<string name="buttons_delete">Delete</string>
 	<string name="confirm_delete_contact">Are you sure you want to delete this contact?</string>
-	
+<string name="couldnotaddcontact">Failed to add contact. Please try again.</string>	
 	 
 </resources> 
