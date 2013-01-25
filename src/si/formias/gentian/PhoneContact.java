@@ -11,6 +11,7 @@ import android.provider.ContactsContract.Contacts;
 public class PhoneContact {
 	public void applyCallback(GentianChat activity,NewContactAddDialog contactCallBack, Intent data) {
 		// http://stackoverflow.com/questions/866769/how-to-call-android-contacts-list
+		if (data==null) return;
    	 Cursor cursor =  activity.managedQuery(data.getData(), null, null, null, null);      
    	   while (cursor.moveToNext()) 
    	   {           
