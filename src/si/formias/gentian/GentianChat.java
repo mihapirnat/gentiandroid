@@ -657,6 +657,7 @@ Thread
 	            // do anything with it; we can count on soon being
 	            // disconnected (and then reconnected if it can be restarted)
 	            // so there is no need to do anything here.
+	        	e.printStackTrace();
 	        }
 
 	        // As part of the sample, tell the user what happened.
@@ -1040,6 +1041,7 @@ Thread
 	
 	public void sendConfigToService() {
 		if (config.inited) {
+			if (mService==null)doBindService();
             Message msg = Message.obtain(null,
                     GentianService.MSG_SET_CONFIG);
             Bundle bundle = new Bundle();
