@@ -65,6 +65,7 @@ System.out.println("main.config.configData:"+main.config.configData);
 
 				Button okButton = new Button(context);
 				okButton.setBackgroundColor(Color.TRANSPARENT);
+				okButton.setTextColor(Color.BLACK);
 				ImageView icon=new ImageView(context);
 				String urltext=null;
 				boolean exportKey=false;
