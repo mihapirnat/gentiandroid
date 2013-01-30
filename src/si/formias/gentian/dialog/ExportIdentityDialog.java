@@ -58,9 +58,7 @@ public class ExportIdentityDialog {
 		buttonsLayout.setOrientation(LinearLayout.HORIZONTAL);
 
 		FileInputStream fin;
-System.out.println("main:"+main);
-System.out.println("main.config:"+main.config);
-System.out.println("main.config.configData:"+main.config.configData);
+
 		for (final GentianAccount acc : main.config.configData.accounts) {
 
 				Button okButton = new Button(context);
