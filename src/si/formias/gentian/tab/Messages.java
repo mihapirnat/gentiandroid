@@ -72,8 +72,8 @@ public class Messages extends Tab {
 		}
 		currentBuddy=buddy;
 		sendText=new EditText(context);
-		sendText.setBackgroundColor(Color.WHITE);
-		sendText.setTextColor(Color.BLACK);
+		sendText.setBackgroundColor(Color.parseColor("#449def"));
+		sendText.setTextColor(Color.WHITE);
 	/*	sendText.setImeOptions(sendText.getImeOptions()
 				| EditorInfo.IME_FLAG_NO_EXTRACT_UI);*/
 		Button sendButton=new Button(context);
