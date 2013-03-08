@@ -160,7 +160,16 @@ boolean debug=false;
             				lastmsg=index;
             				index=0;
             				if (debug) System.out.println("complete msg... notifying");
-            				notifyClient(context,phone,smsbuilder.toString());
+            				try {
+            					String t = smsbuilder.toString();
+            					byte[] b = Base91.decode(t.substring(0,t.length()-1).getBytes("latin1"));
+            					if (b!=null) {
+            						// at least encoding is valid, might be...
+            						notifyClient(context,phone,t);
+            					}
+            				} catch (Exception e) {
+            					
+            				}
             			}
             			
             		}
