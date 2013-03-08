@@ -138,6 +138,10 @@ public class CryptShort {
 		try {
 
 			byte[] b = Base91.decode(text.getBytes("latin1"));
+			if (b==null) {
+				// not in right format, ignore
+				return null;
+			}
 			if (code.equals(CODE_SESSION)) {
 				if (buddy != null) {
 					if (buddy.get(TMPKEYDECRYPT) != null
