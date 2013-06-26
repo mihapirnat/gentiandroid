@@ -46,9 +46,9 @@ public class Config {
 		Security.addProvider(new org.spongycastle.jce.provider.BouncyCastleProvider());
 	}
 
-	public GentianConfig configData;
-	public static File gentian;
-	ZipGentianKeyProvider masterProvider, walletProvider, walletProvider2;
+	volatile public GentianConfig configData;
+	volatile public static File gentian;
+	volatile ZipGentianKeyProvider masterProvider, walletProvider, walletProvider2;
 	final File walletSaltFile;
 	final File walletKeyPackFile;
 	final File walletKeyPackFile2;
@@ -56,12 +56,12 @@ public class Config {
 	final File masterKeyPackFile;
 	final File configFile;
 	final File logFilenameKeysFile;
-	private byte[][] logFilenameKeys;
-	boolean inited;
-	public byte[] check;
-	public static GentianChat gentianChat;
+	volatile private byte[][] logFilenameKeys;
+	volatile boolean inited;
+	volatile public byte[] check;
+	volatile public static GentianChat gentianChat;
 	public final int SAVEPREFIX = 40;
-	byte[][] aes;
+	volatile byte[][] aes;
 	static {
 		{
 			String state = Environment.getExternalStorageState();
@@ -211,7 +211,7 @@ public class Config {
 					gentianChat, new OpenMasterPasswordDialog.CallBack() {
 
 						@Override
-						public boolean passwordSet(String password) {
+						public void passwordSet(String password,Runnable onSuccess,Runnable onFail) {
 							FileInputStream in;
 							try {
 								in = new FileInputStream(walletSaltFile);
@@ -233,9 +233,10 @@ public class Config {
 								if (!loadKeys(salt, aes)) {
 									gentianChat.displayNotice(
 											"Wrong password.", null);
-									return false;
+//									return false;
+									onFail.run();
 								} else {
-									return true;
+									onSuccess.run();
 								}
 
 							} catch (FileNotFoundException e) {
@@ -248,7 +249,7 @@ public class Config {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
-							return false;
+							onFail.run();
 						}
 
 					});

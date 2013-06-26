@@ -124,7 +124,7 @@ public class GentianChat extends Activity {
 	public static final int RED = Color.RED;
 	public static final int BLUE = Color.parseColor("#6ea6e9");
 	int build = 1;
-	volatile Handler logHandler, noticeHandler;
+	volatile Handler logHandler, noticeHandler,handler;
 	volatile String notice;
 	public Config config;
  	
@@ -193,7 +193,7 @@ Thread
 		System.out.println("gen oncreate");
 		super.onCreate(savedInstanceState);
 		running=true;
-		
+		handler=new Handler();
 		Display display = getWindowManager().getDefaultDisplay();
 		landscape = display.getWidth() > display.getHeight();
 		density = getResources().getDisplayMetrics().density;
@@ -736,20 +736,24 @@ Thread
 		running=false;
 	}
 	public void configLoaded() {
-		contacts.updateContacts();
-		activeChat=this;
-		// doBindService();   // we'll do service later
-		readSMS();
-		Intent intent=getIntent();
-		if (intent!=null) {
-			Bundle bundle=intent.getExtras();
-			if (bundle!=null && bundle.getString("smsphone")!=null) {
-				//readSMS();
-			} else {
-				addContact(intent);
+		handler.post(new Runnable() {
+			public void run() {
+
+				contacts.updateContacts();
+				activeChat=GentianChat.this;
+				// doBindService();   // we'll do service later
+				readSMS();
+				Intent intent=getIntent();
+				if (intent!=null) {
+					Bundle bundle=intent.getExtras();
+					if (bundle!=null && bundle.getString("smsphone")!=null) {
+						//readSMS();
+					} else {
+						addContact(intent);
+					}
+				}
 			}
-		}
-		
+		});
 	}
 	private void readSMS() {
 		File f= new File(config.gentian,"smswaiting");
