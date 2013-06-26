@@ -4,6 +4,10 @@
  */
 package si.formias.gentian.xml;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+
 
 /**
  * 
@@ -61,7 +66,18 @@ public class Node {
 	}
 
 	public String toString(int depth) {
-		StringBuilder sb = new StringBuilder();
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		try {
+			PrintWriter w = new PrintWriter(new OutputStreamWriter(bout,"utf-8"));
+			toPrintWriter(w, depth);
+			w.flush();
+			return new String(bout.toByteArray(),"utf-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+		/*StringBuilder sb = new StringBuilder();
 		String tab = tabs(depth);
 		sb.append(tab + "<");
 		sb.append(tag);
@@ -81,7 +97,32 @@ public class Node {
 			sb.append(tag);
 			sb.append(">\n");
 		}
-		return sb.toString();
+		return sb.toString();*/
+	}
+	public void toPrintWriter(PrintWriter w,int depth) {
+		String tab = tabs(depth);
+		w.print(tab + "<");
+		w.print(tag);
+
+		StringBuilder sb = new StringBuilder();
+		printAttributes(sb);
+		w.print(sb.toString());
+		sb=null;
+		if (text == null && children.size() == 0) {
+			w.print(" />\n");
+		} else {
+			w.print(">\n");
+			if (text != null) {
+				w.print(text.trim().replace("&", "&amp;")
+						.replace("<", "&lt;").replace(">", "&gt;"));
+			}
+			for (Node n : children) {
+				n.toPrintWriter(w,depth + 1);
+			}
+			w.print(tab + "</");
+			w.print(tag);
+			w.print(">\n");
+		}				
 	}
 
 	transient Map<String, Node> tagNodes = new HashMap<String, Node>();

@@ -1,5 +1,7 @@
 package si.formias.gentian.xml;
 
+import java.io.PrintWriter;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -32,5 +34,30 @@ public class Answer extends Node {
 			sb.append(">\n");
 		}
 		return sb.toString();
+	}
+	public void toPrintWriter(PrintWriter w,int depth) {
+		String tab = tabs(depth);
+		w.print(tab + "<");
+		w.print(tag);
+
+		StringBuilder sb = new StringBuilder();
+		printAttributes(sb);
+		w.print(sb.toString());
+		sb=null;
+		if (text == null && children.size() == 0) {
+			w.print(" />\n");
+		} else {
+			w.print(">");
+			if (text != null) {
+				w.print(text.trim().replace("&", "&amp;")
+						.replace("<", "&lt;").replace(">", "&gt;"));
+			}
+			for (Node n : children) {
+				n.toPrintWriter(w,depth + 1);
+			}
+			w.print("</");
+			w.print(tag);
+			w.print(">\n");
+		}				
 	}
 }
