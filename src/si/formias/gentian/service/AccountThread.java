@@ -13,6 +13,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.http.HttpEntity;
 import org.xml.sax.SAXException;
 
+import android.util.Log;
+
 import si.formias.gentian.Compatibility;
 import si.formias.gentian.GentianService;
 import si.formias.gentian.Util;
@@ -44,6 +46,9 @@ public class AccountThread extends Thread {
 
 	@Override
 	public void run() {
+		if (account.getServer().equals(GentianAccount.SMS)) {
+			return;
+		}
 		while (alive) {
 			/*System.out.println("Gentian Service Account Thread " + n + ": "
 					+ account.getUser() + " running.");*/
@@ -62,8 +67,10 @@ public class AccountThread extends Thread {
 				/*System.out.println(account.getUser() + " sendmap:" + postMap);*/
 				HttpEntity entity;
 				try {
-					entity = magic.postURL("http://" + account.getServer()
-							+ ".onion:" + account.getPort() + "/messages/",
+					String url="http://" + account.getServer()
+					+ ":" + account.getPort() + "/messages/";
+					Log.d("AccountThread","Checking url: "+url);
+					entity = magic.postURL(url,
 							magic.getPostData(postMap), null);
 					try {
 						/*String textreply = Util.readStream(entity.getContent());
@@ -71,6 +78,7 @@ public class AccountThread extends Thread {
 						parser.parse(new ByteArrayInputStream(textreply
 								.getBytes("utf-8")));
 								*/
+						//Log.d("AccountThread",Util.readStream(entity.getContent()));
 						 parser.parse(entity.getContent());
 
 						MessagesReply reply = (MessagesReply) parser.root;

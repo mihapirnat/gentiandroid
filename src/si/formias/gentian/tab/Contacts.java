@@ -28,8 +28,10 @@ import org.xml.sax.SAXException;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Handler;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -40,12 +42,13 @@ import android.widget.TextView;
 public class Contacts extends Tab {
 	GentianChat main;
 	Context context;
+	private Handler handler;
 
 	public Contacts(GentianChat main) {
 		super(main);
 		this.main = main;
 		this.context = main;
-
+		this.handler=new Handler();
 	}
 
 	Map<String, BuddyStructure> buddyStruct = Collections
@@ -140,11 +143,22 @@ public class Contacts extends Tab {
 					s.buddy.setWaiting(s.messagesWaiting);
 					//System.out.println("click setting messages waiting to:"+s.messagesWaiting);
 					s.button.setText(s.getText());
-					main.messages.startConversation(buddy, getLog(buddy
-							.getUser()));
+					new Thread() {
+						public void run() {
+							final GentianLog log =getLog(buddy
+									.getUser());
+							handler.post(new Runnable() {
+								public void run() {
+									main.messages.startConversation(buddy, log);
+									main.config.saveConfig();
+									
+									
+								}
+							});
+							
+						}
+					}.start();
 
-					
-					main.config.saveConfig();
 				}
 			};
 			OnLongClickListener longClick=new OnLongClickListener() {
@@ -177,9 +191,9 @@ public class Contacts extends Tab {
 		}
 	}
 
-	public void newMessage(Message m, String decrypted) {
+	public void newMessage(final Message m, String decrypted) {
 		boolean waiting = decrypted == null;
-		String user = m.getUser();
+		final String user = m.getUser();
 		BuddyStructure struct = buddyStruct.get(user);
 		System.out.println("new message contcts");
 		if (struct != null && waiting) {
@@ -194,22 +208,25 @@ public class Contacts extends Tab {
 		}
 		if (struct != null) {
 
-			String s = waiting ? Messages.decrypt(struct.buddy, m.getText())
+			final String s = waiting ? Messages.decrypt(struct.buddy, m.getText())
 					: decrypted;
 			if (s != null) {
-				GentianLog log = getLog(user);
-				IncomingText text;
-				try {
-					text = new IncomingText(null);
-					text.setText(s);
-					text.setTimeStamp(m.getTimeStamp());
-					log.add(text);
-					main.config.saveNodeToFile(log, getLogFile(user));
-				} catch (SAXException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
+				new Thread() {
+					public void run() {
+						GentianLog log = getLog(user);
+						IncomingText text;
+						try {
+							text = new IncomingText(null);
+							text.setText(s);
+							text.setTimeStamp(m.getTimeStamp());
+							log.add(text);
+							main.config.saveNodeToFile(log, getLogFile(user));
+						} catch (SAXException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}.start();
 				if (struct.buddy != null)
 					struct.buddy.getAccount().setTail(m.getId());
 			}
@@ -224,20 +241,23 @@ public class Contacts extends Tab {
 		main.topButtons.updateContactsWaiting(waiting);
 	}
 
-	public void newOutgoingMessage(String user, String text) {
-		GentianLog log = getLog(user);
-		OutgoingText logText;
-		try {
-			logText = new OutgoingText(null);
-			logText.setTimeStamp(System.currentTimeMillis());
-			logText.setText(text);
-			log.add(logText);
-			main.config.saveNodeToFile(log, getLogFile(user));
-		} catch (SAXException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+	public void newOutgoingMessage(final String user, final String text) {
+		new Thread() {
+			public void run() {
+				GentianLog log = getLog(user);
+				OutgoingText logText;
+				try {
+					logText = new OutgoingText(null);
+					logText.setTimeStamp(System.currentTimeMillis());
+					logText.setText(text);
+					log.add(logText);
+					main.config.saveNodeToFile(log, getLogFile(user));
+				} catch (SAXException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}.start();
 	}
 
 	public synchronized void updateConfig() {
@@ -261,6 +281,7 @@ public class Contacts extends Tab {
 			.synchronizedMap(new LinkedHashMap<String, GentianLog>());
 
 	public GentianLog getLog(String user) {
+		long startTime=System.currentTimeMillis();
 		GentianLog log = logCache.get(user);
 		if (log == null) {
 			File f = getLogFile(user);
@@ -280,6 +301,7 @@ public class Contacts extends Tab {
 				}
 			}
 		}
+		Log.d("Contacts","GetLog time:"+(System.currentTimeMillis()-startTime)+" ms");
 		return log;
 	}
 

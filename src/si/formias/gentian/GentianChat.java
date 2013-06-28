@@ -97,8 +97,10 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -356,7 +358,7 @@ Thread
 				log(getText(R.string.log_connecting_master).toString(), WHITE);
 				try {
 					InputStream in = new URL(
-							"http://q77wrnihwcsk3ff2.onion:8050/server.txt")
+							"http://nwvittxfasebf6ly.onion/server.txt")
 							.openConnection(
 									new Proxy(Proxy.Type.HTTP,
 											new InetSocketAddress("localhost",
@@ -374,6 +376,7 @@ Thread
 					writeStream(fos, reply);
 
 					log(String.format(getText(R.string.log_server_list_updated).toString(),count), GREEN);
+					topButtons.createAccount.setVisibility(View.VISIBLE);
 				} catch (ConnectException e) {
 					log(String.format(getText(R.string.log_orbot_connect_failed).toString(),e.getMessage()), RED);
 					/*notice = getText(R.string.log_orbot_description).toString();
@@ -405,7 +408,7 @@ Thread
 		this.text = text;
 		this.color = color;
 		logHandler.sendEmptyMessage(0);
-
+		Log.d("Log",text);
 	}
 
 	public void logDirect(String text, int color) {
@@ -741,7 +744,7 @@ Thread
 
 				contacts.updateContacts();
 				activeChat=GentianChat.this;
-				// doBindService();   // we'll do service later
+				doBindService();  
 				readSMS();
 				Intent intent=getIntent();
 				if (intent!=null) {
@@ -852,7 +855,7 @@ Thread
 							public void newAccountChosen(String host, int port,final String nick) {
 									//System.out.println("Create new account "+host+":"+port);
 									registerAccount(host, port,new OnRegistrationRunnable() {public void run() {
-										registerContactImpl(account,user,nick,container);
+										registerContactImpl(account,user,nick,container,cryptModulusString,cryptPublicExponentString,signPublic);
 											
 									}});
 							}
@@ -861,7 +864,7 @@ Thread
 							public void existingAccountChosen(GentianAccount acc,String nick) {
 									//System.out.println("Use existing account "+acc);
 									try {
-										registerContact(acc,user,nick);
+										registerContact(acc,user,nick,cryptModulusString,cryptPublicExponentString,signPublic);
 									} catch (Exception e) {
 										displayNotice(GentianChat.this.getString(R.string.couldnotaddcontact));
 									}
@@ -1077,16 +1080,19 @@ Thread
 				Map<String,String> postMap=new LinkedHashMap<String,String>();
 				postMap.put("user", acc.getUser());
 				postMap.put("password",acc.getPassword());
-				postMap.put("cryptmodulus",acc.getCryptModulusString());
+				postMap.put("alias",acc.getAlias());
+				/*postMap.put("cryptmodulus",acc.getCryptModulusString());
 				postMap.put("cryptpublicexponent",acc.getCryptPublicExponentString());
 				postMap.put("signmodulus",acc.getCryptModulusString());
 				postMap.put("signpublicexponent",acc.getCryptPublicExponentString());
-				
+				*/
 				HttpMagic magic=new HttpMagic("utf-8");
 				HttpEntity entity;
 				
 				try {
-					entity = magic.postURL("http://" +acc.getServer()+".onion:"+acc.getPort()+ "/register/",magic.getPostData(postMap), null);
+					String url="http://" +acc.getServer()+":"+acc.getPort()+ "/register/";
+					Log.d("GentianChar","Registration url:"+url);
+					entity = magic.postURL(url,magic.getPostData(postMap), null);
 					String s=Util.readStream(entity.getContent());
 					if (s.equals("OK")) {
 						main.log(main.getText(R.string.newaccount_register_success).toString(),GentianChat.GREEN);
@@ -1129,24 +1135,35 @@ Thread
 		updateContantsHandler.sendEmptyMessage(0);
 		
 	}
-	public void registerContact(final GentianAccount account,final String user,final String nick) {
+	public void registerContact(final GentianAccount account,final String user,final String nick, final String cryptModulusString, final String cryptPublicExponentString, final String signPublic) {
 		registerTaskThread(new MyThread(){public void run() {
-			registerContactImpl(account, user, nick,this);
+			registerContactImpl(account, user, nick,this,cryptModulusString,cryptPublicExponentString,signPublic);
 			super.run();
 		}});
 	}
-	private void registerContactImpl(GentianAccount account,String user,String nick,MyThread container) {
+	private void registerContactImpl(GentianAccount account,String user,String nick,MyThread container, String cryptModulusString, String cryptPublicExponentString, String signPublic) {
 		Map<String,String> postMap=new LinkedHashMap<String,String>();
 		postMap.put("user", user);
 		HttpMagic magic=new HttpMagic("utf-8");
 		HttpEntity entity;
 		
 		try {
-			entity = magic.postURL("http://" +account.getServer()+".onion:"+account.getPort()+ "/user/",magic.getPostData(postMap), null);
+			/*entity = magic.postURL("http://" +account.getServer()+".onion:"+account.getPort()+ "/user/",magic.getPostData(postMap), null);
 			Parser parser = new Parser();
 			parser.parse(entity.getContent());
 			
-			GentianBuddy buddy = (GentianBuddy) parser.root;
+			GentianBuddy buddy = (GentianBuddy) parser.root;*/
+			GentianBuddy buddy;
+
+				buddy = new GentianBuddy(null);
+				buddy.setNick(nick);
+				buddy.setTextOf(GentianBuddy.USER,user);
+				buddy.setTextOf(GentianBuddy.CRYPTPUBLICEXPONENT,cryptPublicExponentString);
+				buddy.setTextOf(GentianBuddy.CRYPTMODULUS, cryptModulusString);
+				buddy.setTextOf(GentianBuddy.SIGNPUBLIC,signPublic);
+				
+				
+
 			buddy.setNick(nick);
 				String msg=container.main.getText(R.string.newcontactadd_gotuser).toString();
 				container.log(msg,GentianChat.GREEN);

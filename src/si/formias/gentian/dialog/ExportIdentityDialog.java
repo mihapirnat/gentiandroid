@@ -74,6 +74,7 @@ public class ExportIdentityDialog {
 				} else {
 					okButton.setText(acc.getUser()+"@"+acc.getServer()+":"+acc.getPort());
 					icon.setImageResource(R.drawable.torcontact);
+					exportKey=true;
 				}
 				final String url="gentian://"+acc.getServer()+":"+acc.getPort()+"/"+acc.getUser().replace("+","-").replace("/", "|")+(exportKey?"/"+acc.getCryptModulusString().replace("+","-").replace("/", "|")+"/"+acc.getCryptPublicExponentString().replace("+","-").replace("/", "|")+"/"+acc.getSignPublic().replace("+","-").replace("/", "|"):"");
 				OnClickListener click =new OnClickListener() {

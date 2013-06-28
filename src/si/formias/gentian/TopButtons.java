@@ -35,6 +35,7 @@ public class TopButtons extends LinearLayout {
 	public ToggleButton log,contacts,chats;
 	CharSequence contactsText,messagesText;
 	GentianChat chat;
+	public Button createAccount;
 	public TopButtons(final GentianChat gentianChat) {
 		super(gentianChat);
 		this.chat=gentianChat;
@@ -48,7 +49,7 @@ public class TopButtons extends LinearLayout {
 		LinearLayout.LayoutParams parmsExit=new LinearLayout.LayoutParams(0,LayoutParams.FILL_PARENT);
 		parmsExit.weight=1;
 		
-		Button createAccount = new Button(context);
+		createAccount = new Button(context);
 		if (gentianChat.landscape) {
 			createAccount.setText(gentianChat.getText(R.string.top_create_account).toString().replace("\n"," "));
 		} else {

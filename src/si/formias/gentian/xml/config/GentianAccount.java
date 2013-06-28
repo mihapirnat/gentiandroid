@@ -47,6 +47,7 @@ public class GentianAccount extends Node {
 	static final String PORT="Port";
 	static final String USER="User";
 	static final String PASSWORD="Password";
+	static final String ALIAS="Alias";
 	static final String CRYPTMODULUS="CryptModulus";
 	static final String CRYPTPUBLICEXPONENT="CryptPublicExponent";
 	static final String CRYPTPRIVATEEXPONENT="CryptPrivateExponent";
@@ -80,8 +81,11 @@ public class GentianAccount extends Node {
 		r.nextBytes(userBytes);
 		byte[] passBytes=new byte[32];
 		r.nextBytes(passBytes);
+		byte[] aliasBytes=new byte[32];
+		r.nextBytes(aliasBytes);
 		setUser(Base64.encodeToString(userBytes, false));
 		setPassword(Base64.encodeToString(passBytes, false));
+		setAlias(Base64.encodeToString(aliasBytes, false));
 		KeyPair kp = kpg.genKeyPair();
 
 		KeyFactory fact = KeyFactory.getInstance("RSA");
@@ -144,6 +148,9 @@ public class GentianAccount extends Node {
 	private void setPassword(String password) {
 		setTextOf(PASSWORD,password);
 	}
+	private void setAlias(String alias) {
+		setTextOf(ALIAS,alias);
+	}
 	private void setCryptModulus(BigInteger modulus) {
 		setTextOf(CRYPTMODULUS,Base64.encodeToString(modulus.toByteArray(),false));
 	}
@@ -176,6 +183,9 @@ public class GentianAccount extends Node {
 	}
 	public String getPassword() {
 		return textOf(PASSWORD);
+	}
+	public String getAlias() {
+		return textOf(ALIAS);
 	}
 	public BigInteger getCryptModulus() {
 		return new BigInteger(Base64.decode(textOf(CRYPTMODULUS)));

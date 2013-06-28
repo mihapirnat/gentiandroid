@@ -296,7 +296,7 @@ public class CryptShort {
 											if (lasttimestamp >= timestamp) {
 												if (debug)
 													System.out
-															.println("wrong timestamp");
+															.println("wrong timestamp, last:"+lasttimestamp+" current:"+timestamp);
 
 												wipe(iv);
 												wipe(b);

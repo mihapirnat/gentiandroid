@@ -68,7 +68,7 @@ public class NewAccountDialog {
 
 				Button okButton = new Button(context);
 
-				okButton.setText(name+" ("+target+")");
+				okButton.setText(name+"\n"+target);
 
 				okButton.setOnClickListener(new OnClickListener() {
 

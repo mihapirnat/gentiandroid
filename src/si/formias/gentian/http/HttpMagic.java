@@ -153,7 +153,7 @@ public class HttpMagic {
      * @throws IOException Network error
 
      */
-    public HttpEntity postURLMultiPart(String url, MultipartEntity body) throws IOException {
+    /*public HttpEntity postURLMultiPart(String url, MultipartEntity body) throws IOException {
 
         HttpPost httppost = new HttpPost(url);
 
@@ -163,7 +163,7 @@ public class HttpMagic {
 
 
 
-    }
+    }*/
 
     /** Creates multipart POST data . To be used as argument of <a href="#postURLMultiPart(java.lang.String,%20org.apache.commons.httpclient.methods.multipart.Part[])">postURLMultiPart(java.lang.String,%20org.apache.commons.httpclient.methods.multipart.Part[])</a>
      *
@@ -172,7 +172,7 @@ public class HttpMagic {
      * @param binaryData binary attachments
      * @return multipart POST data
      */
-    public MultipartEntity getParts(Map<String, String> textData, List<ProgressPartSource> binaryData) throws UnsupportedEncodingException, FileNotFoundException {
+    /*public MultipartEntity getParts(Map<String, String> textData, List<ProgressPartSource> binaryData) throws UnsupportedEncodingException, FileNotFoundException {
         NameValuePair[] textpairs = getPostData(textData);
         MultipartEntity reqEntity = new MultipartEntity();
 
@@ -201,7 +201,7 @@ public class HttpMagic {
             }
         }
         return reqEntity;
-    }
+    }*/
 
     final HttpHost host=new HttpHost("localhost",	8118,"http");
     /** Opens POST connection to given form url, sends paramaters and returns response as stream
