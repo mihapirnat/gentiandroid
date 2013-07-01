@@ -1,8 +1,11 @@
 package si.formias.gentian;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -14,6 +17,10 @@ import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
+
+
+import com.google.android.gcm.GCMRegistrar;
+
 import si.formias.gentian.R;
 import si.formias.gentian.service.AccountThread;
 import si.formias.gentian.xml.Parser;
@@ -21,6 +28,8 @@ import si.formias.gentian.xml.config.GentianAccount;
 import si.formias.gentian.xml.config.GentianConfig;
 import si.formias.gentian.xml.messages.MessagesReply;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -32,6 +41,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.util.Log;
 import android.widget.Toast;
 
 public class GentianService extends Service {
@@ -45,6 +55,7 @@ public class GentianService extends Service {
     byte[] check;
     
     Map<String,AccountThread> threadMap=Collections.synchronizedMap(new LinkedHashMap<String,AccountThread>());
+    Map<String,AccountThread> aliasMap=Collections.synchronizedMap(new LinkedHashMap<String,AccountThread>());
     
     /**
      * Command to the service to register a client, receiving callbacks
@@ -63,7 +74,7 @@ public class GentianService extends Service {
     /**
      * Command to service to set a new value.  This can be sent to the
      * service to supply a new value, and will be sent by the service to
-     * any registered clients with the new value.
+     * any registered clients with the new value. MSG_SEND_GCM_REG
      */
     static final int MSG_SET_VALUE = 3;
 
@@ -74,6 +85,10 @@ public class GentianService extends Service {
     static final int MSG_SEND_MESSAGE=6;
     
     static final int MSG_MESSAGE_REPLY=7;
+	public static final int MSG_SEND_GCM_REG = 8;
+	public static final int MSG_REFRESHNOW = 9;
+	
+	GentianConfig config;
     void initConnections() {
     	
     }
@@ -89,14 +104,17 @@ public class GentianService extends Service {
                 		Bundle bundle = msg.getData();
                 		byte[] check=bundle.getByteArray("check");
                 		if (GentianService.this.check==null || Util.equal(GentianService.this.check,check)) {
-                			mClients.add(msg.replyTo);	
+                			if (bundle.getBoolean("register",true)) {
+                				mClients.add(msg.replyTo);
+                			}
                 			if (GentianService.this.check==null) {
                 				GentianService.this.check=check;
                 				initConnections();
                 			}
                 			msg.replyTo.send(Message.obtain(null,
                                     MSG_REGISTERED_WELCOME, 0, 0));
-                		//	System.out.println("Gentian Service: Client registered");
+                			System.out.println("Gentian Service: Client registered, current clients:"+mClients.toString());
+                			
                 			
                 			if (waitingNumberMessages>0) {
                 				for (String user : waitingMessages.keySet()) {
@@ -124,8 +142,13 @@ public class GentianService extends Service {
                 				}
 
                 			}
-                			waitingNumberMessages=0;
-                       		mNM.cancel(R.drawable.icon);
+                			if (mClients.size()>0) {
+                				if (waitingMessages!=null) {
+                					waitingMessages.clear();
+                				}
+                				waitingNumberMessages=0;
+                				mNM.cancel(R.drawable.icon);
+                			}
                 		}
                 	} catch (Exception e) {
                 		
@@ -133,7 +156,7 @@ public class GentianService extends Service {
                     break;
                 case MSG_UNREGISTER_CLIENT:
                     mClients.remove(msg.replyTo);
-//                    System.out.println("Gentian Service: Client gone");
+                    System.out.println("Gentian Service: Client gone current clients:"+mClients.toString());
                     break;
                 case MSG_SET_VALUE:
                     mValue = msg.arg1;
@@ -157,13 +180,16 @@ public class GentianService extends Service {
                 	try {
 						p.parse(new ByteArrayInputStream(configString.getBytes("utf-8")));
 	//					System.out.println("Gentian Service: Config set.");
-						GentianConfig config = (GentianConfig) p.root;
+						config = (GentianConfig) p.root;
 						Set<String> accountKeys=new LinkedHashSet<String>();
 						for (GentianAccount acc : config.accounts) {
 							String id = acc.toString();
 							accountKeys.add(id);
 							if (!threadMap.containsKey(id)) {
-								threadMap.put(id,new AccountThread(acc,GentianService.this));
+								AccountThread t =new AccountThread(acc,GentianService.this);
+								threadMap.put(id,t);
+								aliasMap.put(acc.getAliasId(),t);
+								
 							}
 						}
 						List<String> removeList=new ArrayList<String>();
@@ -173,9 +199,20 @@ public class GentianService extends Service {
 							}
 						}
 						for (String threadId : removeList) {
-							threadMap.remove(threadId).alive=false;
+							AccountThread t=threadMap.remove(threadId);
+							t.alive=false;
+							aliasMap.remove(t.getAccount().getAliasId());
 						}
-						
+						for (AccountThread t : threadMap.values()) {
+							t.interrupt();
+						}
+						new Thread() {
+							public void run() {
+
+								initGCM();
+							}
+						}.start();
+						mNM.cancel(R.string.tormessagebutnoservice);
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -195,10 +232,40 @@ public class GentianService extends Service {
                     }
                 }
                 	break;
+                case MSG_SEND_GCM_REG:
+    				gcmReg(msg);
+    				break;
+    			case MSG_REFRESHNOW:
+    				{
+    					String alias = msg.getData().getString("alias");
+    					String server = msg.getData().getString("server");
+    					String key=alias+"@"+server;
+    					AccountThread t =aliasMap.get(key.replace(" ","+"));
+    					if (t!=null) {
+    						t.hasMessage=true;
+    						t.interrupt();
+    					} else {
+    						Log.d("GentianService","Can't find server thread: "+key+" alias keys:"+aliasMap.keySet());
+    						if (config==null) {
+    							notifyCannotCheckAccountNoService();
+    						}
+    					}
+    				}
+
+    				break;
                 default:
                     super.handleMessage(msg);
             }
         }
+		private void gcmReg(final Message msg) {
+			new Thread() {
+				public void run() {
+					Log.d("Gentianservice","gcmReg: "+msg.getData().getString("gcmregid"));
+					registerGCMKeyToServer(msg.getData().getString("gcmregid"));
+				}
+			}.start();
+
+		}
     }
 
     /**
@@ -209,7 +276,12 @@ public class GentianService extends Service {
     @Override
     public void onCreate() {
         mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+		new Thread() {
+			public void run() {
 
+				initGCM();
+			}
+		}.start();
         // Display a notification about us starting.
         showNotification();
     }
@@ -272,7 +344,7 @@ public class GentianService extends Service {
 				try {
 					
 					mClients.get(i).send(msg);
-				} catch (RemoteException e) {
+				} catch (Exception e) {
                 // The client is dead.  Remove it from the list;
                 // we are going through the list from back to front
                 // so this is safe to do inside the loop.
@@ -309,6 +381,114 @@ public class GentianService extends Service {
         		mNM.cancel(R.drawable.icon);
         	}
         }
+		
+	}
+	private void initGCM() {
+		if (config==null) return;
+		GCMRegistrar.checkDevice(this);
+		GCMRegistrar.checkManifest(this);
+		final String regId = GCMRegistrar.getRegistrationId(this);
+		if (regId.equals("")) {
+			GCMRegistrar.register(this, GCM.GCM_REGISTER);
+		} else {
+			Log.v("KatalogService", "Already registered: " + regId);
+			registerGCMKeyToServer(regId);
+
+		}
+
+	}
+
+	private void registerGCMKeyToServer(String regId) {
+		if (regId==null) {
+			Log.d("GentianService", "registerGCMKeyToServer null: "+regId+", later...");
+			return;
+		}
+		gcmRegisteredOnce = true;
+		Log.d("GentianService", "registerGCMKeyToServer: "+regId);
+		
+
+		StringBuilder sb = new StringBuilder();
+		
+
+		int i = 0;
+		if (config != null) {
+			for (GentianAccount acc : config.accounts) {			
+				sb.append("&alias" + i + "=" + acc.getAlias()+"@"+acc.getServer()+":"+acc.getPort());
+				i++;
+				if (i > 100)
+					break;
+			
+			}
+			
+		}
+		
+		String url = GCM.getBase() + "register?gcmkey="
+				+ regId + sb.toString();
+		if (GCM.isDebug())
+			Log.d("GentianService", "Registering GCM: " + url);
+		long retry = 10000;
+		boolean notSend = true;
+		while (notSend) {
+			try {
+				new URL(url).openStream().close();
+				notSend = false;
+
+			} catch (Exception e) {
+				e.printStackTrace();
+				Log.d("Gentianervice",
+						"Failed to register GCM to server,will retry in:"
+								+ (retry / 1000) + "s");
+				try {
+					Thread.sleep(retry);
+				} catch (Exception e1) {
+
+				}
+
+			}
+		}
+
+	}
+
+	volatile boolean gcmRegisteredOnce;
+	public void notifyCannotCheckAccount() {
+        CharSequence text = getText(R.string.tormessagebutnonetwork);
+
+        // Set the icon, scrolling text and timestamp
+        Notification notification = new Notification(R.drawable.torcontact, text,
+                System.currentTimeMillis());
+
+        // The PendingIntent to launch our activity if the user selects this notification
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, GentianChat.class), 0);
+
+        // Set the info for the views that show in the notification panel.
+        notification.setLatestEventInfo(this, getText(R.string.app_name),
+                       text, contentIntent);
+        mNM.notify(R.string.tormessagebutnonetwork,notification);
+	
+	
+		
+	}
+	public void cancelNotifyCannotCheckAccount(){
+		mNM.cancel(R.string.tormessagebutnonetwork);
+	}
+	public void notifyCannotCheckAccountNoService() {
+        CharSequence text = getText(R.string.tormessagebutnoservice);
+
+        // Set the icon, scrolling text and timestamp
+        Notification notification = new Notification(R.drawable.torcontact, text,
+                System.currentTimeMillis());
+
+        // The PendingIntent to launch our activity if the user selects this notification
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, GentianChat.class), 0);
+
+        // Set the info for the views that show in the notification panel.
+        notification.setLatestEventInfo(this, getText(R.string.app_name),
+                       text, contentIntent);
+        mNM.notify(R.string.tormessagebutnoservice,notification);
+	
+	
 		
 	}
 }

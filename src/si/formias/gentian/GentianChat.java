@@ -379,10 +379,37 @@ Thread
 					topButtons.createAccount.setVisibility(View.VISIBLE);
 				} catch (ConnectException e) {
 					log(String.format(getText(R.string.log_orbot_connect_failed).toString(),e.getMessage()), RED);
+					if (config.gentian!=null && !new File(config.gentian,"tornotice").exists()) {
+						handler.post(new Runnable() {
+							public void run() {
+					
+								askYesNo(getText(R.string.usetorwelcome).toString(),new Runnable() {
+									public void run() {
+										Intent marketIntent = new Intent(
+											Intent.ACTION_VIEW);
+										// 	Try Google play
+										marketIntent.setData(Uri
+													.parse("market://details?id=org.torproject.android"));
+										startActivity(marketIntent);
+									}
+								});
+							}
+						});
+					}
 					/*notice = getText(R.string.log_orbot_description).toString();
 					noticeHandler.sendEmptyMessage(0);*/
 				} catch (Exception e) {
 					log(String.format(getText(R.string.log_server_list_update_failed).toString(), e.getMessage()), RED);
+				
+				} finally {
+					try {
+						FileOutputStream fout=new FileOutputStream(new File(config.gentian,"tornotice"));
+						fout.write(1);
+						fout.close();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 
 				main.inited = true;

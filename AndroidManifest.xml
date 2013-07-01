@@ -10,6 +10,17 @@
      <uses-permission android:name="android.permission.SEND_SMS" />
      <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.INTERNET" /> 
+    	<permission android:name="si.formias.gentian.permission.C2D_MESSAGE" android:protectionLevel="signature" />
+	<uses-permission android:name="si.formias.gentian.permission.C2D_MESSAGE" />
+	<!-- App receives GCM messages. -->
+<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+<!-- GCM requires a Google account. 
+<uses-permission android:name="android.permission.GET_ACCOUNTS" />
+-->
+
+<!-- Keeps the processor from sleeping when a message is received. -->
+<uses-permission android:name="android.permission.WAKE_LOCK" /> 
+
     <application android:icon="@drawable/icon" android:label="@string/app_name">
         <activity android:name=".GentianChat"
                   android:label="@string/app_name" android:launchMode="singleTask" android:stateNotNeeded="true">
@@ -32,8 +43,15 @@
                     "android.provider.Telephony.SMS_RECEIVED" /> 
             </intent-filter> 
         </receiver>
+        <receiver android:name="com.google.android.gcm.GCMBroadcastReceiver" android:permission="com.google.android.c2dm.permission.SEND" >
+  			<intent-filter>
+    		<action android:name="com.google.android.c2dm.intent.RECEIVE" />
+    		<action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+    			<category android:name="si.formias.gentian" />
+  			</intent-filter>
+		</receiver>
 <service android:name=".GentianService"  android:exported="false" android:process=":remote"/>
-
+<service android:name=".GCMIntentService" />
     </application>
     
 

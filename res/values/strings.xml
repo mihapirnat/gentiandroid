@@ -68,5 +68,7 @@
 	<string name="buttons_delete">Delete</string>
 	<string name="confirm_delete_contact">Are you sure you want to delete this contact?</string>
 <string name="couldnotaddcontact">Failed to add contact. Please try again.</string>	
-	 
+<string name="tormessagebutnonetwork">You have new Tor message, but there is no connection to Tor network or server is unreachable.</string>
+<string name="tormessagebutnoservice">You have new Tor message, please log in.</string>
+<string name="usetorwelcome">Tor is not running.\n\nGentian now supports Tor messaging. Download Orbot from Google Play and connect to Tor network to use this feature.\n\nDo you want to install Orbot?</string>	 
 </resources> 

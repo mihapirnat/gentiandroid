@@ -281,4 +281,7 @@ public class GentianAccount extends Node {
 	        ECPrivateKey        privKey = (ECPrivateKey)keyFac.generatePrivate(privPKCS8);
 	        return privKey;
 	}
+	public String getAliasId() {
+		return getAlias()+"@"+getServer()+":"+getPort();
+	}
 }

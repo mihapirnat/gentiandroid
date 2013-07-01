@@ -67,4 +67,7 @@
 	<string name="confirm_delete_contact">Ali ste prepričani, da želite izbrisati ta kontakt?</string>
 	<string name="wrong_timestamp_smaller_or_equal_replay">Napaka: čas prejetega sporočila je bil manjši ali enak zadnjemu prejetemu. Možen napad s ponovitvijo sporočila! (replay)</string>
 	<string name="couldnotaddcontact">Dodajanje kontakta ni uspelo. Prosim, poskusite znova.</string>
+	<string name="tormessagebutnonetwork">Imate novo Tor sporočilo, vendar ni povezave s Tor omrežjem ali pa strežnik ni dosegljiv.</string>
+	<string name="tormessagebutnoservice">Imate novo Tor sporočilo, prosim prijavite se.</string>
+	<string name="usetorwelcome">Tor ni vklopljen.\n\nEncijan zdaj podpira Tor sporočila. Naložite Orbot iz Google play in se povežite se v Tor omrežje.\n\nAli želite namestiti Orbot?</string>
 	</resources>  

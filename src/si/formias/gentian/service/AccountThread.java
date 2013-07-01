@@ -35,6 +35,8 @@ public class AccountThread extends Thread {
 	final List<SendMessage> outQueue = Collections
 			.synchronizedList(new ArrayList<SendMessage>());
 	private GentianService service;
+	public volatile boolean hasMessage;
+	volatile boolean interrupted;
 
 	public AccountThread(GentianAccount acc, GentianService service) {
 		this.account = acc;
@@ -43,7 +45,9 @@ public class AccountThread extends Thread {
 		this.tail = acc.getTail();
 		start();
 	}
-
+	public GentianAccount getAccount() {
+		return account;
+	}
 	@Override
 	public void run() {
 		if (account.getServer().equals(GentianAccount.SMS)) {
@@ -52,6 +56,7 @@ public class AccountThread extends Thread {
 		while (alive) {
 			/*System.out.println("Gentian Service Account Thread " + n + ": "
 					+ account.getUser() + " running.");*/
+			interrupted=interrupted | Thread.interrupted();
 			if (Compatibility.isScreenOn(service)) {
 				Map<String, String> postMap = new LinkedHashMap<String, String>();
 				postMap.put("user", account.getUser());
@@ -72,6 +77,8 @@ public class AccountThread extends Thread {
 					Log.d("AccountThread","Checking url: "+url);
 					entity = magic.postURL(url,
 							magic.getPostData(postMap), null);
+					hasMessage=false;
+					interrupted=false;
 					try {
 						/*String textreply = Util.readStream(entity.getContent());
 						System.out.println("Server reply: " + textreply);
@@ -85,6 +92,7 @@ public class AccountThread extends Thread {
 						for (Message msg : reply.messages) {
 							tail = Math.max(tail, msg.getId());
 						}
+						service.cancelNotifyCannotCheckAccount();
 						service.newMessageReply(account, reply);
 
 					} catch (Exception e) {
@@ -95,13 +103,25 @@ public class AccountThread extends Thread {
 					for (int i = size - 1; i >= 0; i--) {
 						outQueue.remove(i);
 					}
+					
 				} catch (IOException e1) {
+					try {
+						if (hasMessage) {
+							hasMessage=false;
+							interrupted=true;
+							service.notifyCannotCheckAccount();
+						} 
+						Thread.sleep(15000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					// TODO Auto-generated catch block
 				//	e1.printStackTrace();
 				}
 			}
 			try {
-				Thread.sleep(3000);
+				if (!hasMessage&&!interrupted)Thread.sleep(300000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -113,6 +133,7 @@ public class AccountThread extends Thread {
 
 	public void sendMessage(String account, String message) {
 		outQueue.add(new SendMessage(account, message));
+		interrupt();
 	}
 
 	private class SendMessage {
