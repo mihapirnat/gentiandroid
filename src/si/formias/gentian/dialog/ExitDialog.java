@@ -33,8 +33,6 @@ import android.widget.LinearLayout.LayoutParams;
 
 public class ExitDialog {
 
-
-
 	public ExitDialog(final GentianChat main) {
 		final Dialog viewDialog = new Dialog(main);
 		viewDialog.getWindow().setFlags(
@@ -49,9 +47,9 @@ public class ExitDialog {
 				.setText("Do you want to keep service running? This way you will receive notifications of new messages.");
 		dialogView.addView(description, new LayoutParams(
 				LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-		LinearLayout center =new LinearLayout(context);
+		LinearLayout center = new LinearLayout(context);
 		center.setOrientation(LinearLayout.VERTICAL);
-		ScrollView scrollCenter=new ScrollView(context);
+		ScrollView scrollCenter = new ScrollView(context);
 		scrollCenter.addView(center);
 		dialogView.addView(scrollCenter, new LayoutParams(
 				LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
@@ -86,7 +84,7 @@ public class ExitDialog {
 			public void onClick(View v) {
 				InputMethodManager inputMethodManager = (InputMethodManager) main
 						.getSystemService(Context.INPUT_METHOD_SERVICE);
-				
+
 				main.removeDialog(viewDialog);
 				viewDialog.cancel();
 

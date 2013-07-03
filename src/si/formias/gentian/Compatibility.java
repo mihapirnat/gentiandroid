@@ -14,8 +14,8 @@ public class Compatibility {
 	};
 
 	private static void initCompatibility() {
-	       
-	   }
+
+	}
 
 	public static boolean isScreenOn(Context main) {
 		Method method_isScreenOn;
@@ -49,7 +49,7 @@ public class Compatibility {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (Exception e) {
-			
+
 		}
 
 		return true;

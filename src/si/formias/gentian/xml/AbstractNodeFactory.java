@@ -14,7 +14,6 @@ import si.formias.gentian.xml.config.*;
 import si.formias.gentian.xml.log.*;
 import si.formias.gentian.xml.messages.*;
 
-
 /**
  * 
  * @author miha
@@ -37,36 +36,40 @@ public class AbstractNodeFactory implements NodeFactory {
 				throws SAXException {
 			return new GentianConfig(attributes);
 		}
-	}		
+	}
+
 	class GentianAccountFactory implements NodeFactory {
 
 		public Node newNode(String tag, Attributes attributes)
 				throws SAXException {
 			return new GentianAccount(attributes);
 		}
-	}		
+	}
+
 	class GentianBuddyFactory implements NodeFactory {
 
 		public Node newNode(String tag, Attributes attributes)
 				throws SAXException {
 			return new GentianBuddy(attributes);
 		}
-	}	
-	
+	}
+
 	class MessagesReplyFactory implements NodeFactory {
 
 		public Node newNode(String tag, Attributes attributes)
 				throws SAXException {
 			return new MessagesReply(attributes);
 		}
-	}	
+	}
+
 	class MessageFactory implements NodeFactory {
 
 		public Node newNode(String tag, Attributes attributes)
 				throws SAXException {
 			return new Message(attributes);
 		}
-	}	
+	}
+
 	class GentianLogFactory implements NodeFactory {
 
 		public Node newNode(String tag, Attributes attributes)
@@ -74,6 +77,7 @@ public class AbstractNodeFactory implements NodeFactory {
 			return new GentianLog(attributes);
 		}
 	}
+
 	class IncomingTextFactory implements NodeFactory {
 
 		public Node newNode(String tag, Attributes attributes)
@@ -81,6 +85,7 @@ public class AbstractNodeFactory implements NodeFactory {
 			return new IncomingText(attributes);
 		}
 	}
+
 	class OutgoingTextFactory implements NodeFactory {
 
 		public Node newNode(String tag, Attributes attributes)
@@ -93,14 +98,14 @@ public class AbstractNodeFactory implements NodeFactory {
 		tag2factory.put("GentianConfig", new GentianConfigFactory());
 		tag2factory.put("GentianAccount", new GentianAccountFactory());
 		tag2factory.put("GentianBuddy", new GentianBuddyFactory());
-		
+
 		tag2factory.put("MessagesReply", new MessagesReplyFactory());
 		tag2factory.put("Message", new MessageFactory());
-		
+
 		tag2factory.put("GentianLog", new GentianLogFactory());
 		tag2factory.put("IncomingText", new IncomingTextFactory());
 		tag2factory.put("OutgoingText", new OutgoingTextFactory());
-		
+
 	}
 
 	final NodeFactory normalNodeFactory = new NormalNodeFactory();

@@ -39,6 +39,7 @@ import si.formias.gentian.xml.config.GentianConfig;
 import org.xml.sax.SAXException;
 
 import android.os.Environment;
+import android.util.Log;
 import static si.formias.gentian.Util.*;
 
 public class Config {
@@ -48,7 +49,8 @@ public class Config {
 
 	volatile public GentianConfig configData;
 	volatile public static File gentian;
-	volatile ZipGentianKeyProvider masterProvider, walletProvider, walletProvider2;
+	volatile ZipGentianKeyProvider masterProvider, walletProvider,
+			walletProvider2;
 	final File walletSaltFile;
 	final File walletKeyPackFile;
 	final File walletKeyPackFile2;
@@ -211,7 +213,8 @@ public class Config {
 					gentianChat, new OpenMasterPasswordDialog.CallBack() {
 
 						@Override
-						public void passwordSet(String password,Runnable onSuccess,Runnable onFail) {
+						public void passwordSet(String password,
+								Runnable onSuccess, Runnable onFail) {
 							FileInputStream in;
 							try {
 								in = new FileInputStream(walletSaltFile);
@@ -233,7 +236,7 @@ public class Config {
 								if (!loadKeys(salt, aes)) {
 									gentianChat.displayNotice(
 											"Wrong password.", null);
-//									return false;
+									// return false;
 									onFail.run();
 								} else {
 									onSuccess.run();
@@ -305,9 +308,9 @@ public class Config {
 			if (!equal(check, salt)) {
 				// System.out.println("*** WRONG PASS");
 				this.check = check;
-				walletProvider=null;
-				walletProvider2=null;
-				masterProvider=null;
+				walletProvider = null;
+				walletProvider2 = null;
+				masterProvider = null;
 				return false;
 			} else {
 				// System.out.println("*** PAsS OK");
@@ -495,9 +498,20 @@ public class Config {
 			bout.write(content);
 			byte[] save = GentianEnvelope.wrap(masterProvider,
 					bout.toByteArray(), 8, 0, 0, true);
-			FileOutputStream fout = new FileOutputStream(file);
+			File fileTmp = new File(file.getAbsolutePath() + ".tmpsave");
+			FileOutputStream fout = new FileOutputStream(fileTmp);
 			fout.write(save);
 			fout.close();
+			Node n = loadNodeFile(fileTmp);
+			if (n != null) {
+				if (file.exists()) {
+					file.delete();
+				}
+				fileTmp.renameTo(file);
+				Log.d("Config", "File saved");
+			} else {
+				fileTmp.delete();
+			}
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -616,29 +630,21 @@ public class Config {
 	}
 
 	public void wipe() {
-		try {
-			if (masterProvider != null)
-				masterProvider.wipe();
-		} catch (Exception e) {
-
-		}
-		try {
-			if (walletProvider != null)
-				walletProvider.wipe();
-		} catch (Exception e) {
-
-		}
-		try {
-			if (walletProvider2 != null)
-				walletProvider2.wipe();
-		} catch (Exception e) {
-
-		}
-		try {
-			Util.wipe(aes);
-		} catch (Exception e) {
-
-		}
+		/** should test this better, config must not be saved after this */
+		/*
+		 * try { if (masterProvider != null) masterProvider.wipe(); } catch
+		 * (Exception e) {
+		 * 
+		 * } try { if (walletProvider != null) walletProvider.wipe(); } catch
+		 * (Exception e) {
+		 * 
+		 * } try { if (walletProvider2 != null) walletProvider2.wipe(); } catch
+		 * (Exception e) {
+		 * 
+		 * } try { Util.wipe(aes); } catch (Exception e) {
+		 * 
+		 * }
+		 */
 
 	}
 }

@@ -48,7 +48,7 @@ public class Contacts extends Tab {
 		super(main);
 		this.main = main;
 		this.context = main;
-		this.handler=new Handler();
+		this.handler = new Handler();
 	}
 
 	Map<String, BuddyStructure> buddyStruct = Collections
@@ -77,29 +77,43 @@ public class Contacts extends Tab {
 		List<GentianBuddy> buddies = new ArrayList<GentianBuddy>();
 		LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(
 				LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-		for (GentianAccount acc : main.config.configData.accounts) {
-			{
-				/*
-				 * TextView v = new TextView(context);
-				 * v.setTypeface(Typeface.DEFAULT_BOLD);
-				 * v.setText(acc.getUser()+
-				 * "@"+acc.getServer()+":"+acc.getPort()+
-				 * " ("+acc.buddies.size()+")"); center.addView(v);
-				 */
-			}
-			for (GentianBuddy buddy : acc.buddies) {
-				buddies.add(buddy);
-				if (GentianChat.CONVERTPHONENUMBERS) {
+		if (main.config != null && main.config.configData != null
+				&& main.config.configData.accounts != null) {
+			for (GentianAccount acc : main.config.configData.accounts) {
+				{
+					/*
+					 * TextView v = new TextView(context);
+					 * v.setTypeface(Typeface.DEFAULT_BOLD);
+					 * v.setText(acc.getUser()+
+					 * "@"+acc.getServer()+":"+acc.getPort()+
+					 * " ("+acc.buddies.size()+")"); center.addView(v);
+					 */
+				}
+				for (GentianBuddy buddy : acc.buddies) {
+					buddies.add(buddy);
+					if (GentianChat.CONVERTPHONENUMBERS) {
 
-					if (buddy.getAccount().getServer().equals(GentianAccount.SMS) && buddy.getTarget()!=null && !buddy.getTarget().trim().startsWith("+")) {
-						System.out.println("converting to international");
-						TelephonyManager manager = (TelephonyManager) main
-								.getSystemService(Context.TELEPHONY_SERVICE);
-						/*System.out.println("Sim country:"
-								+ manager.getSimCountryIso()+" Sim operator:"+manager.getSimOperator());*/
-						buddy.setTextOf(GentianBuddy.TARGET, CountryPhone.prefixForOperator(manager.getSimOperator())+buddy.getTarget().trim().substring(1));
-						//System.out.println(CountryPhone.prefixForOperator(manager.getSimOperator())+buddy.getTarget().substring(1));
-						main.config.saveConfig();
+						if (buddy.getAccount().getServer()
+								.equals(GentianAccount.SMS)
+								&& buddy.getTarget() != null
+								&& !buddy.getTarget().trim().startsWith("+")) {
+							System.out.println("converting to international");
+							TelephonyManager manager = (TelephonyManager) main
+									.getSystemService(Context.TELEPHONY_SERVICE);
+							/*
+							 * System.out.println("Sim country:" +
+							 * manager.getSimCountryIso
+							 * ()+" Sim operator:"+manager.getSimOperator());
+							 */
+							buddy.setTextOf(
+									GentianBuddy.TARGET,
+									CountryPhone.prefixForOperator(manager
+											.getSimOperator())
+											+ buddy.getTarget().trim()
+													.substring(1));
+							// System.out.println(CountryPhone.prefixForOperator(manager.getSimOperator())+buddy.getTarget().substring(1));
+							main.config.saveConfig();
+						}
 					}
 				}
 			}
@@ -118,14 +132,14 @@ public class Contacts extends Tab {
 			Button v = new Button(context);
 			String user = buddy.getUser();
 			BuddyStructure struct = buddyStruct.get(user);
-			
+
 			if (struct == null) {
-			
+
 				struct = new BuddyStructure(buddy, v);
 				buddyStruct.put(user, struct);
 			} else {
 				struct.buddy = buddy;
-				struct.button=v;
+				struct.button = v;
 			}
 			struct.messagesWaiting = buddy.getWaiting();
 			v.setTypeface(Typeface.DEFAULT);
@@ -138,35 +152,33 @@ public class Contacts extends Tab {
 
 				@Override
 				public void onClick(View v) {
-					s.messagesWaiting=0;
+					s.messagesWaiting = 0;
 					updateContactsWaiting();
 					s.buddy.setWaiting(s.messagesWaiting);
-					//System.out.println("click setting messages waiting to:"+s.messagesWaiting);
+					// System.out.println("click setting messages waiting to:"+s.messagesWaiting);
 					s.button.setText(s.getText());
 					new Thread() {
 						public void run() {
-							final GentianLog log =getLog(buddy
-									.getUser());
+							final GentianLog log = getLog(buddy.getUser());
 							handler.post(new Runnable() {
 								public void run() {
 									main.messages.startConversation(buddy, log);
 									main.config.saveConfig();
-									
-									
+
 								}
 							});
-							
+
 						}
 					}.start();
 
 				}
 			};
-			OnLongClickListener longClick=new OnLongClickListener() {
-				
+			OnLongClickListener longClick = new OnLongClickListener() {
+
 				@Override
 				public boolean onLongClick(View v) {
 					new EditContactDialog(main, buddy);
-				    return true;
+					return true;
 
 				}
 			};
@@ -208,8 +220,8 @@ public class Contacts extends Tab {
 		}
 		if (struct != null) {
 
-			final String s = waiting ? Messages.decrypt(struct.buddy, m.getText())
-					: decrypted;
+			final String s = waiting ? Messages.decrypt(struct.buddy,
+					m.getText()) : decrypted;
 			if (s != null) {
 				new Thread() {
 					public void run() {
@@ -234,9 +246,9 @@ public class Contacts extends Tab {
 	}
 
 	private void updateContactsWaiting() {
-		int waiting=0;
-		for (BuddyStructure struct:buddyStruct.values()) {
-			waiting+=struct.messagesWaiting;
+		int waiting = 0;
+		for (BuddyStructure struct : buddyStruct.values()) {
+			waiting += struct.messagesWaiting;
 		}
 		main.topButtons.updateContactsWaiting(waiting);
 	}
@@ -281,7 +293,7 @@ public class Contacts extends Tab {
 			.synchronizedMap(new LinkedHashMap<String, GentianLog>());
 
 	public GentianLog getLog(String user) {
-		long startTime=System.currentTimeMillis();
+		long startTime = System.currentTimeMillis();
 		GentianLog log = logCache.get(user);
 		if (log == null) {
 			File f = getLogFile(user);
@@ -301,7 +313,8 @@ public class Contacts extends Tab {
 				}
 			}
 		}
-		Log.d("Contacts","GetLog time:"+(System.currentTimeMillis()-startTime)+" ms");
+		Log.d("Contacts", "GetLog time:"
+				+ (System.currentTimeMillis() - startTime) + " ms");
 		return log;
 	}
 

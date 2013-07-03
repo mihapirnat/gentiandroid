@@ -70,4 +70,22 @@
 	<string name="tormessagebutnonetwork">Imate novo Tor sporočilo, vendar ni povezave s Tor omrežjem ali pa strežnik ni dosegljiv.</string>
 	<string name="tormessagebutnoservice">Imate novo Tor sporočilo, prosim prijavite se.</string>
 	<string name="usetorwelcome">Tor ni vklopljen.\n\nEncijan zdaj podpira Tor sporočila. Naložite Orbot iz Google play in se povežite se v Tor omrežje.\n\nAli želite namestiti Orbot?</string>
+	
+		<string name="install_orbot_">Namestim Orbot?</string>
+	
+	<string name="market_orbot">market://search?q=pname:org.torproject.android</string>
+	
+	<string name="you_must_have_orbot">Za uporabo Tor sporočil morate imeti nameščen in aktiviran Orbot. Bi ga radi namestili z Google Play?</string>
+	
+	<string name="yes">Da</string>
+	
+	<string name="no">Ne</string>
+	
+	<string name="start_orbot_">Zaženem Orbott?</string>
+	
+	<string name="orbot_doesn_t_appear_to_be_running_would_you_like_to_start_it_up_and_connect_to_tor_">Orbot ni pognan. Bi ga radi pognali in se povezali na Tor omrežje?</string>
+	
+	<string name="secure_connection_active_">"Secure Connection Active: "</string>
+	<string name="newtormessage">Novo Tor sporočilo</string>
+	<string name="actionprogresspleasewait">Dejanje poteka. Prosim, počakajte.</string>
 	</resources>  

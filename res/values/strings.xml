@@ -70,5 +70,23 @@
 <string name="couldnotaddcontact">Failed to add contact. Please try again.</string>	
 <string name="tormessagebutnonetwork">You have new Tor message, but there is no connection to Tor network or server is unreachable.</string>
 <string name="tormessagebutnoservice">You have new Tor message, please log in.</string>
-<string name="usetorwelcome">Tor is not running.\n\nGentian now supports Tor messaging. Download Orbot from Google Play and connect to Tor network to use this feature.\n\nDo you want to install Orbot?</string>	 
+<string name="usetorwelcome">Tor is not running.\n\nGentian now supports Tor messaging. Download Orbot from Google Play and connect to Tor network to use this feature.\n\nDo you want to install Orbot?</string>
+
+	<string name="install_orbot_">Install Orbot?</string>
+	
+	<string name="market_orbot">market://search?q=pname:org.torproject.android</string>
+	
+	<string name="you_must_have_orbot">You must have Orbot installed and activated to proxy traffic through it. Would you like to install it from Google Play?</string>
+	
+	<string name="yes">Yes</string>
+	
+	<string name="no">No</string>
+	
+	<string name="start_orbot_">Start Orbot?</string>
+	
+	<string name="orbot_doesn_t_appear_to_be_running_would_you_like_to_start_it_up_and_connect_to_tor_">Orbot doesn\'t appear to be running. Would you like to start it up and connect to Tor?</string>
+	
+	<string name="secure_connection_active_">"Secure Connection Active: "</string>
+	<string name="newtormessage">New Tor Message</string>
+	<string name="actionprogresspleasewait">Action in progress, please wait.</string>	 
 </resources> 

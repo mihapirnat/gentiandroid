@@ -158,8 +158,6 @@ public class ServiceClient {
 		}
 	}
 
-	
-
 	public void refreshNow(String alias, String server) {
 		Message msg = Message.obtain(null, GentianService.MSG_REFRESHNOW);
 		msg.replyTo = mMessenger;

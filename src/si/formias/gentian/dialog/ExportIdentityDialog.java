@@ -10,12 +10,14 @@ import java.util.StringTokenizer;
 import si.formias.gentian.GentianChat;
 import si.formias.gentian.R;
 import si.formias.gentian.Util;
+import si.formias.gentian.dialog.ExportIdentityDialog.Launcher;
 import si.formias.gentian.xml.config.GentianAccount;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.text.ClipboardManager;
 import android.text.method.PasswordTransformationMethod;
@@ -33,9 +35,10 @@ import android.widget.TextView;
 import android.widget.LinearLayout.LayoutParams;
 
 public class ExportIdentityDialog {
-
+	final Dialog viewDialog;
+	public Launcher launcher;  
 	public ExportIdentityDialog(final GentianChat main) {
-		final Dialog viewDialog = new Dialog(main);
+		viewDialog = new Dialog(main);
 		viewDialog.getWindow().setFlags(
 				WindowManager.LayoutParams.FLAG_BLUR_BEHIND,
 				WindowManager.LayoutParams.FLAG_BLUR_BEHIND);
@@ -44,13 +47,12 @@ public class ExportIdentityDialog {
 		LinearLayout dialogView = new LinearLayout(context);
 		dialogView.setOrientation(LinearLayout.VERTICAL);
 		final TextView description = new TextView(context);
-		description
-				.setText(R.string.exportidentity_description);
+		description.setText(R.string.exportidentity_description);
 		dialogView.addView(description, new LayoutParams(
 				LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
-		LinearLayout center =new LinearLayout(context);
+		LinearLayout center = new LinearLayout(context);
 		center.setOrientation(LinearLayout.VERTICAL);
-		ScrollView scrollCenter=new ScrollView(context);
+		ScrollView scrollCenter = new ScrollView(context);
 		scrollCenter.addView(center);
 		dialogView.addView(scrollCenter, new LayoutParams(
 				LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
@@ -61,67 +63,87 @@ public class ExportIdentityDialog {
 
 		for (final GentianAccount acc : main.config.configData.accounts) {
 
-				Button okButton = new Button(context);
-				okButton.setBackgroundColor(Color.TRANSPARENT);
-				okButton.setTextColor(Color.BLACK);
-				ImageView icon=new ImageView(context);
-				String urltext=null;
-				boolean exportKey=false;
-				if (acc.getServer().equals(GentianAccount.SMS)) {
-					okButton.setText("SMS");
-					icon.setImageResource(R.drawable.smscontact);
-					exportKey=true;
-				} else {
-					okButton.setText(acc.getUser()+"@"+acc.getServer()+":"+acc.getPort());
-					icon.setImageResource(R.drawable.torcontact);
-					exportKey=true;
-				}
-				final String url="gentian://"+acc.getServer()+":"+acc.getPort()+"/"+acc.getUser().replace("+","-").replace("/", "|")+(exportKey?"/"+acc.getCryptModulusString().replace("+","-").replace("/", "|")+"/"+acc.getCryptPublicExponentString().replace("+","-").replace("/", "|")+"/"+acc.getSignPublic().replace("+","-").replace("/", "|"):"");
-				OnClickListener click =new OnClickListener() {
-
-					@Override
-					public void onClick(View v) {
-						InputMethodManager inputMethodManager = (InputMethodManager) main
-								.getSystemService(Context.INPUT_METHOD_SERVICE);
-
-						if (inputMethodManager != null)
-							inputMethodManager.hideSoftInputFromWindow(
-									description.getWindowToken(), 0);
-						
-						IntentIntegrator
-						.shareText(
-								main,
-								url);							
-							
-						
-					}
-					
-				};
-				okButton.setOnClickListener(click);
-				View.OnLongClickListener longclick=new View.OnLongClickListener() {
-					
-					@Override
-					public boolean onLongClick(View v) {
-						 ClipboardManager ClipMan = (ClipboardManager) main.getSystemService(Context.CLIPBOARD_SERVICE);
-						    ClipMan.setText(url);
-						    main.displayNotice(main.getText(R.string.exportidentity_clipboard).toString());
-						    return true;
-
-					}
-				};
-				okButton.setOnLongClickListener(longclick);
-				
-				icon.setClickable(true);
-				icon.setOnClickListener(click);
-				icon.setOnLongClickListener(longclick);
-			
-				LinearLayout l = new LinearLayout(context);
-				l.setOrientation(LinearLayout.HORIZONTAL);
-				l.setBackgroundResource(R.drawable.buddies);
-				l.addView(icon,new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.FILL_PARENT));
-				l.addView(okButton,new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT));
-				center.addView(l,new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,LayoutParams.WRAP_CONTENT));
+			Button okButton = new Button(context);
+			okButton.setBackgroundColor(Color.TRANSPARENT);
+			okButton.setTextColor(Color.BLACK);
+			ImageView icon = new ImageView(context);
+			String urltext = null;
+			boolean exportKey = false;
+			if (acc.getServer().equals(GentianAccount.SMS)) {
+				okButton.setText("SMS");
+				icon.setImageResource(R.drawable.smscontact);
+				exportKey = true;
+			} else {
+				okButton.setText(acc.getUser() + "@" + acc.getServer() + ":"
+						+ acc.getPort());
+				icon.setImageResource(R.drawable.torcontact);
+				exportKey = true;
 			}
+			final String url = "gentian://"
+					+ acc.getServer()
+					+ ":"
+					+ acc.getPort()
+					+ "/"
+					+ acc.getUser().replace("+", "-").replace("/", "|")
+					+ (exportKey ? "/"
+							+ acc.getCryptModulusString().replace("+", "-")
+									.replace("/", "|")
+							+ "/"
+							+ acc.getCryptPublicExponentString()
+									.replace("+", "-").replace("/", "|")
+							+ "/"
+							+ acc.getSignPublic().replace("+", "-")
+									.replace("/", "|") : "");
+			OnClickListener click = new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					InputMethodManager inputMethodManager = (InputMethodManager) main
+							.getSystemService(Context.INPUT_METHOD_SERVICE);
+
+					if (inputMethodManager != null)
+						inputMethodManager.hideSoftInputFromWindow(
+								description.getWindowToken(), 0);
+
+					IntentIntegrator.shareText(main, url);
+
+				}
+
+			};
+			okButton.setOnClickListener(click);
+			View.OnLongClickListener longclick = new View.OnLongClickListener() {
+
+				@Override
+				public boolean onLongClick(View v) {
+					ClipboardManager ClipMan = (ClipboardManager) main
+							.getSystemService(Context.CLIPBOARD_SERVICE);
+					ClipMan.setText(url);
+					main.displayNotice(main.getText(
+							R.string.exportidentity_clipboard).toString());
+
+					main.removeDialog(viewDialog);
+					viewDialog.cancel();
+					if (launcher!=null) main.dismissDialogLauncher(launcher);
+					return true;
+
+				}
+			};
+			okButton.setOnLongClickListener(longclick);
+
+			icon.setClickable(true);
+			icon.setOnClickListener(click);
+			icon.setOnLongClickListener(longclick);
+
+			LinearLayout l = new LinearLayout(context);
+			l.setOrientation(LinearLayout.HORIZONTAL);
+			l.setBackgroundResource(R.drawable.buddies);
+			l.addView(icon, new LinearLayout.LayoutParams(
+					LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT));
+			l.addView(okButton, new LinearLayout.LayoutParams(
+					LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+			center.addView(l, new LinearLayout.LayoutParams(
+					LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
+		}
 
 		Button cancelButton = new Button(context);
 		cancelButton.setText(R.string.buttons_cancel);
@@ -131,21 +153,50 @@ public class ExportIdentityDialog {
 			public void onClick(View v) {
 				InputMethodManager inputMethodManager = (InputMethodManager) main
 						.getSystemService(Context.INPUT_METHOD_SERVICE);
-				
+
 				main.removeDialog(viewDialog);
 				viewDialog.cancel();
-
+				if (launcher!=null) main.dismissDialogLauncher(launcher);
 			}
 		});
 		LinearLayout.LayoutParams parmsButton = new LinearLayout.LayoutParams(
 				0, LayoutParams.WRAP_CONTENT);
 		parmsButton.weight = 1;
-		
+
 		buttonsLayout.addView(cancelButton, parmsButton);
 		dialogView.addView(buttonsLayout, new LayoutParams(
 				LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT));
 		viewDialog.setContentView(dialogView);
+		viewDialog.setOnCancelListener(new Dialog.OnCancelListener() {
+			
+			@Override
+			public void onCancel(DialogInterface dialog) {
+
+				main.removeDialog(viewDialog);
+				
+				if (launcher!=null) main.dismissDialogLauncher(launcher);
+				
+			}
+		});
 		main.addDialog(viewDialog);
 		viewDialog.show();
+	}
+	public static class Launcher implements DialogLauncher {
+		Dialog dialog;
+		@Override
+		public void launchDialog(GentianChat main,	Object savedInstance) {
+			ExportIdentityDialog d=new ExportIdentityDialog(main);
+			d.launcher=this;
+			dialog=d.viewDialog;
+			
+		}
+
+
+		@Override
+		public Object retainDialogData() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
 	}
 }

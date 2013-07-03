@@ -6,6 +6,7 @@ import si.formias.gentian.R;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Handler;
+import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.view.WindowManager;
@@ -43,6 +44,7 @@ public class OpenMasterPasswordDialog {
 		final EditText pass = new EditText(context);
 		pass.setImeOptions(pass.getImeOptions()
 				| EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+		pass.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
 		PasswordTransformationMethod passTransform = new PasswordTransformationMethod();
 		pass.setTransformationMethod(passTransform);
 		final Handler handler = new Handler();

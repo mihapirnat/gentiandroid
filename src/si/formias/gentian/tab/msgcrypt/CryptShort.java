@@ -82,10 +82,10 @@ public class CryptShort {
 			result[i + lone] = two[i];
 		}
 		if (wipeFirst) {
-			 wipe(one);
+			wipe(one);
 		}
 		if (wipeSecond) {
-			 wipe(two);
+			wipe(two);
 		}
 		return result;
 	}
@@ -138,7 +138,7 @@ public class CryptShort {
 		try {
 
 			byte[] b = Base91.decode(text.getBytes("latin1"));
-			if (b==null) {
+			if (b == null) {
 				// not in right format, ignore
 				return null;
 			}
@@ -296,7 +296,10 @@ public class CryptShort {
 											if (lasttimestamp >= timestamp) {
 												if (debug)
 													System.out
-															.println("wrong timestamp, last:"+lasttimestamp+" current:"+timestamp);
+															.println("wrong timestamp, last:"
+																	+ lasttimestamp
+																	+ " current:"
+																	+ timestamp);
 
 												wipe(iv);
 												wipe(b);
@@ -423,7 +426,6 @@ public class CryptShort {
 
 					}
 
-					
 					if (extrabytes != null) {
 						cut = cut(extrabytes, 16);
 						iv2 = cut[0];
@@ -451,9 +453,9 @@ public class CryptShort {
 					byte[] msg = b;
 
 					// cut = cut(msg,32);
-					cut=cut(msg,1);
-					byte SIGNATURE_LEN=cut[0][0];
-					msg=cut[1];
+					cut = cut(msg, 1);
+					byte SIGNATURE_LEN = cut[0][0];
+					msg = cut[1];
 					cut = cut(msg, SIGNATURE_LEN);
 					// byte[] digest=cut[0];
 					byte[] signature = cut[0];
@@ -754,8 +756,8 @@ public class CryptShort {
 					join(bKeyPair.getPublic().getEncoded(),
 							join(hmac, join(keybytes, b, false, false), false,
 									true), false, true), false, true);
-			signbytes=buddy.getAccount().signOutgoing(signbytes);
-			bout.write((byte)signbytes.length);
+			signbytes = buddy.getAccount().signOutgoing(signbytes);
+			bout.write((byte) signbytes.length);
 			bout.write(signbytes);
 			wipe(signbytes);
 			// bout.write(digest);

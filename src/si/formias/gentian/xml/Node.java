@@ -17,7 +17,6 @@ import java.util.Map;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-
 /**
  * 
  * @author miha
@@ -26,7 +25,8 @@ public class Node {
 
 	public final String tag;
 	Node parent;
-	protected final List<Node> children = Collections.synchronizedList(new ArrayList<Node>());
+	protected final List<Node> children = Collections
+			.synchronizedList(new ArrayList<Node>());
 	public final Map<String, String> attributes;
 	protected String text;
 
@@ -36,7 +36,8 @@ public class Node {
 
 	public Node(final String tag, Attributes attributes) throws SAXException {
 		this.tag = tag;
-		this.attributes = Collections.synchronizedMap(new LinkedHashMap<String, String>());
+		this.attributes = Collections
+				.synchronizedMap(new LinkedHashMap<String, String>());
 		if (attributes != null) {
 			int len = attributes.getLength();
 			for (int i = 0; i < len; i++) {
@@ -68,38 +69,29 @@ public class Node {
 	public String toString(int depth) {
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
 		try {
-			PrintWriter w = new PrintWriter(new OutputStreamWriter(bout,"utf-8"));
+			PrintWriter w = new PrintWriter(new OutputStreamWriter(bout,
+					"utf-8"));
 			toPrintWriter(w, depth);
 			w.flush();
-			return new String(bout.toByteArray(),"utf-8");
+			return new String(bout.toByteArray(), "utf-8");
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
-		/*StringBuilder sb = new StringBuilder();
-		String tab = tabs(depth);
-		sb.append(tab + "<");
-		sb.append(tag);
-
-		printAttributes(sb);
-		if (text == null && children.size() == 0) {
-			sb.append(" />\n");
-		} else {
-			sb.append(">\n");
-			if (text != null) {
-				sb.append(text.trim());
-			}
-			for (Node n : children) {
-				sb.append(n.toString(depth + 1));
-			}
-			sb.append(tab + "</");
-			sb.append(tag);
-			sb.append(">\n");
-		}
-		return sb.toString();*/
+		/*
+		 * StringBuilder sb = new StringBuilder(); String tab = tabs(depth);
+		 * sb.append(tab + "<"); sb.append(tag);
+		 * 
+		 * printAttributes(sb); if (text == null && children.size() == 0) {
+		 * sb.append(" />\n"); } else { sb.append(">\n"); if (text != null) {
+		 * sb.append(text.trim()); } for (Node n : children) {
+		 * sb.append(n.toString(depth + 1)); } sb.append(tab + "</");
+		 * sb.append(tag); sb.append(">\n"); } return sb.toString();
+		 */
 	}
-	public void toPrintWriter(PrintWriter w,int depth) {
+
+	public void toPrintWriter(PrintWriter w, int depth) {
 		String tab = tabs(depth);
 		w.print(tab + "<");
 		w.print(tag);
@@ -107,22 +99,22 @@ public class Node {
 		StringBuilder sb = new StringBuilder();
 		printAttributes(sb);
 		w.print(sb.toString());
-		sb=null;
+		sb = null;
 		if (text == null && children.size() == 0) {
 			w.print(" />\n");
 		} else {
 			w.print(">\n");
 			if (text != null) {
-				w.print(text.trim().replace("&", "&amp;")
-						.replace("<", "&lt;").replace(">", "&gt;"));
+				w.print(text.trim().replace("&", "&amp;").replace("<", "&lt;")
+						.replace(">", "&gt;"));
 			}
 			for (Node n : children) {
-				n.toPrintWriter(w,depth + 1);
+				n.toPrintWriter(w, depth + 1);
 			}
 			w.print(tab + "</");
 			w.print(tag);
 			w.print(">\n");
-		}				
+		}
 	}
 
 	transient Map<String, Node> tagNodes = new HashMap<String, Node>();
@@ -167,8 +159,6 @@ public class Node {
 		return children.remove(n);
 	}
 
-
-
 	public String textOf(String tag) {
 		Node n = getNodeByTag(tag);
 		if (n != null) {
@@ -176,19 +166,21 @@ public class Node {
 		}
 		return null;
 	}
-	public void setTextOf(String tag,String text) {
+
+	public void setTextOf(String tag, String text) {
 		Node n = getNodeByTag(tag);
 		if (n == null) {
 			try {
-				n=new Answer(tag,null);
+				n = new Answer(tag, null);
 				add(n);
 			} catch (SAXException e) {
 				e.printStackTrace();
 			}
-			
+
 		}
 		n.setText(text);
 	}
+
 	public String get(String key) {
 		return attributes.get(key);
 	}
@@ -228,6 +220,7 @@ public class Node {
 		}
 		children.clear();
 	}
+
 	public void unset(String key) {
 		attributes.remove(key);
 	}

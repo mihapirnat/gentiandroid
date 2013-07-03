@@ -45,18 +45,23 @@ public class AccountThread extends Thread {
 		this.tail = acc.getTail();
 		start();
 	}
+
 	public GentianAccount getAccount() {
 		return account;
 	}
+
 	@Override
 	public void run() {
 		if (account.getServer().equals(GentianAccount.SMS)) {
 			return;
 		}
 		while (alive) {
-			/*System.out.println("Gentian Service Account Thread " + n + ": "
-					+ account.getUser() + " running.");*/
-			interrupted=interrupted | Thread.interrupted();
+			/*
+			 * System.out.println("Gentian Service Account Thread " + n + ": " +
+			 * account.getUser() + " running.");
+			 */
+			interrupted = interrupted | Thread.interrupted()
+					| outQueue.size() > 0;
 			if (Compatibility.isScreenOn(service)) {
 				Map<String, String> postMap = new LinkedHashMap<String, String>();
 				postMap.put("user", account.getUser());
@@ -69,24 +74,29 @@ public class AccountThread extends Thread {
 				}
 				postMap.put("tail", Long.toString(tail));
 
-				/*System.out.println(account.getUser() + " sendmap:" + postMap);*/
+				/*
+				 * System.out.println(account.getUser() + " sendmap:" +
+				 * postMap);
+				 */
 				HttpEntity entity;
 				try {
-					String url="http://" + account.getServer()
-					+ ":" + account.getPort() + "/messages/";
-					Log.d("AccountThread","Checking url: "+url);
-					entity = magic.postURL(url,
-							magic.getPostData(postMap), null);
-					hasMessage=false;
-					interrupted=false;
+					String url = "http://" + account.getServer() + ":"
+							+ account.getPort() + "/messages/";
+					Log.d("AccountThread", "Checking url: " + url);
+					entity = magic.postURL(url, magic.getPostData(postMap),
+							null);
+					hasMessage = false;
+					interrupted = false;
 					try {
-						/*String textreply = Util.readStream(entity.getContent());
-						System.out.println("Server reply: " + textreply);
-						parser.parse(new ByteArrayInputStream(textreply
-								.getBytes("utf-8")));
-								*/
-						//Log.d("AccountThread",Util.readStream(entity.getContent()));
-						 parser.parse(entity.getContent());
+						/*
+						 * String textreply =
+						 * Util.readStream(entity.getContent());
+						 * System.out.println("Server reply: " + textreply);
+						 * parser.parse(new ByteArrayInputStream(textreply
+						 * .getBytes("utf-8")));
+						 */
+						// Log.d("AccountThread",Util.readStream(entity.getContent()));
+						parser.parse(entity.getContent());
 
 						MessagesReply reply = (MessagesReply) parser.root;
 						for (Message msg : reply.messages) {
@@ -103,25 +113,26 @@ public class AccountThread extends Thread {
 					for (int i = size - 1; i >= 0; i--) {
 						outQueue.remove(i);
 					}
-					
+
 				} catch (IOException e1) {
 					try {
 						if (hasMessage) {
-							hasMessage=false;
-							interrupted=true;
+							hasMessage = false;
+							interrupted = true;
 							service.notifyCannotCheckAccount();
-						} 
+						}
 						Thread.sleep(15000);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					// TODO Auto-generated catch block
-				//	e1.printStackTrace();
+					// e1.printStackTrace();
 				}
 			}
 			try {
-				if (!hasMessage&&!interrupted)Thread.sleep(300000);
+				if (!hasMessage && !interrupted)
+					Thread.sleep(300000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
