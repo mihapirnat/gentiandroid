@@ -467,13 +467,19 @@ public class GentianService extends Service {
 				if (helper.isOrbotRunning()) {
 
 					Map<String, String> postMap = new LinkedHashMap<String, String>();
-					HttpMagic magic = new HttpMagic("utf-8");
+					HttpMagic magic = new HttpMagic("utf-8",this);
 					HttpEntity entity;
 					entity = magic.postURL(url, magic.getPostData(postMap),
-							null);
+							null,true);
 					String s = Util.readStream(entity.getContent());
 				} else {
-					new URL(url).openStream().close();
+					//new URL(url).openStream().close();
+					Map<String, String> postMap = new LinkedHashMap<String, String>();
+					HttpMagic magic = new HttpMagic("utf-8",this);
+					HttpEntity entity;
+					entity = magic.postURL(url, magic.getPostData(postMap),
+							null,false);
+					String s = Util.readStream(entity.getContent());
 				}
 
 				notSend = false;

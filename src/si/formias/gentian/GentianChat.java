@@ -1390,7 +1390,7 @@ public class GentianChat extends Activity {
 					 * .put("signpublicexponent",acc.getCryptPublicExponentString
 					 * ());
 					 */
-					HttpMagic magic = new HttpMagic("utf-8");
+					HttpMagic magic = new HttpMagic("utf-8",GentianChat.this);
 					HttpEntity entity;
 
 					try {
@@ -1398,7 +1398,7 @@ public class GentianChat extends Activity {
 								+ acc.getPort() + "/register/";
 						Log.d("GentianChar", "Registration url:" + url);
 						entity = magic.postURL(url, magic.getPostData(postMap),
-								null);
+								null,true);
 						String s = Util.readStream(entity.getContent());
 						if (s.equals("OK")) {
 							main.log(
@@ -1469,7 +1469,7 @@ public class GentianChat extends Activity {
 			String cryptPublicExponentString, String signPublic) {
 		Map<String, String> postMap = new LinkedHashMap<String, String>();
 		postMap.put("user", user);
-		HttpMagic magic = new HttpMagic("utf-8");
+		HttpMagic magic = new HttpMagic("utf-8",this);
 		HttpEntity entity;
 
 		try {

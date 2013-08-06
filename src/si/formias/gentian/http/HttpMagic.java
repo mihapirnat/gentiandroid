@@ -2,15 +2,17 @@ package si.formias.gentian.http;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
+import java.security.KeyStore;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.net.ssl.SSLSocketFactory;
+
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -31,17 +33,24 @@ import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.scheme.SocketFactory;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 
 import org.apache.http.entity.mime.MultipartEntity;
 
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.SingleClientConnManager;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+
+import si.formias.gentian.R;
+
+import android.content.Context;
+import android.util.Log;
 
 /**
  * HTTP transmission layer using <a href="http://hc.apache.org/">HttpClient</a>
@@ -66,7 +75,7 @@ public class HttpMagic {
 	 * @param charSet
 	 *            charset to be used (for example "UTF-8")
 	 */
-	public HttpMagic(String charSet) {
+	public HttpMagic(String charSet,Context context) {
 
 		HttpParams params = new BasicHttpParams();
 		params.setParameter(
@@ -89,7 +98,7 @@ public class HttpMagic {
 		// registry);
 		HttpClientParams.setCookiePolicy(params,
 				org.apache.http.client.params.CookiePolicy.BEST_MATCH);
-		client = new DefaultHttpClient(params);
+		client = new MyHttpClient(context,params);
 
 		client.getParams().setParameter(ClientPNames.COOKIE_POLICY,
 				CookiePolicy.RFC_2965);
@@ -114,7 +123,7 @@ public class HttpMagic {
 		 * ThreadSafeClientConnManager(params, registry); client = new
 		 * DefaultHttpClient(manager, params);
 		 */
-		client = new DefaultHttpClient();
+		
 
 		charset = charSet;
 
@@ -232,12 +241,14 @@ public class HttpMagic {
 	 * @throws IOException
 	 *             Network error
 	 */
-	public HttpEntity postURL(String url, NameValuePair[] params, String referer)
+	public HttpEntity postURL(String url, NameValuePair[] params, String referer,boolean useTorProxy)
 			throws IOException {
 
 		HttpPost httppost = new HttpPost(url);
 
-		ConnRouteParams.setDefaultProxy(httppost.getParams(), host);
+		if (useTorProxy) {
+			ConnRouteParams.setDefaultProxy(httppost.getParams(), host);
+		}
 
 		if (referer != null) {
 			httppost.addHeader("Referer", referer);
@@ -257,9 +268,9 @@ public class HttpMagic {
 		return responseEntity;
 	}
 
-	public String fetchURL(String url, NameValuePair[] params)
+	public String fetchURL(String url, NameValuePair[] params,boolean useTorProxy)
 			throws UnsupportedEncodingException, IOException {
-		HttpEntity entity = postURL(url, params, null);
+		HttpEntity entity = postURL(url, params, null,useTorProxy);
 		InputStreamReader r = new InputStreamReader(entity.getContent(),
 				"UTF-8");
 		char[] buffer = new char[4096];
@@ -271,4 +282,52 @@ public class HttpMagic {
 		entity.consumeContent();
 		return sb.toString();
 	}
+	 class MyHttpClient extends DefaultHttpClient {
+		 
+		    final Context context;
+		 
+		    public MyHttpClient(Context context, HttpParams params) {
+		    	super(params);
+		        this.context = context;
+		        
+		    }
+		 
+		    @Override
+		    protected ClientConnectionManager createClientConnectionManager() {
+		        SchemeRegistry registry = new SchemeRegistry();
+		        registry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+		        // Register for port 443 our SSLSocketFactory with our keystore
+		        // to the ConnectionManager
+		        registry.register(new Scheme("https", newSslSocketFactory(), 443));
+		        
+		        return new SingleClientConnManager(getParams(), registry);
+		    }
+		 
+		    private SSLSocketFactory newSslSocketFactory() {
+		        try {
+		        	
+		            // Get an instance of the Bouncy Castle KeyStore format
+		            KeyStore trusted = KeyStore.getInstance("BKS");
+		            // Get the raw resource, which contains the keystore with
+		            // your trusted certificates (root and any intermediate certs)
+		            InputStream in = context.getResources().openRawResource(R.raw.mykeystore);
+		            try {
+		                // Initialize the keystore with the provided trusted certificates
+		                // Also provide the password of the keystore
+		                trusted.load(in, "mysecret".toCharArray());
+		            } finally {
+		                in.close();
+		            }
+		            // Pass the keystore to the SSLSocketFactory. The factory is responsible
+		            // for the verification of the server certificate.
+		            SSLSocketFactory sf = new SSLSocketFactory(trusted);
+		            // Hostname verification from certificate
+		            // http://hc.apache.org/httpcomponents-client-ga/tutorial/html/connmgmt.html#d4e506
+		            sf.setHostnameVerifier(SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
+		            return sf;
+		        } catch (Exception e) {
+		            throw new AssertionError(e);
+		        }
+		    }
+		}
 }

@@ -28,7 +28,7 @@ public class AccountThread extends Thread {
 	public boolean alive = true;
 	final int n;
 	static int nextId = 0;
-	final HttpMagic magic = new HttpMagic("utf-8");
+	final HttpMagic magic;
 	final Parser parser = new Parser();
 	final GentianAccount account;
 	long tail = 0;
@@ -39,6 +39,7 @@ public class AccountThread extends Thread {
 	volatile boolean interrupted;
 
 	public AccountThread(GentianAccount acc, GentianService service) {
+		this.magic = new HttpMagic("utf-8",service);
 		this.account = acc;
 		this.n = ++nextId;
 		this.service = service;
@@ -84,7 +85,7 @@ public class AccountThread extends Thread {
 							+ account.getPort() + "/messages/";
 					Log.d("AccountThread", "Checking url: " + url);
 					entity = magic.postURL(url, magic.getPostData(postMap),
-							null);
+							null,true);
 					hasMessage = false;
 					interrupted = false;
 					try {
@@ -96,7 +97,9 @@ public class AccountThread extends Thread {
 						 * .getBytes("utf-8")));
 						 */
 						// Log.d("AccountThread",Util.readStream(entity.getContent()));
-						parser.parse(entity.getContent());
+						String s= Util.readStream(entity.getContent());
+						Log.d("AccountThread",s);
+						parser.parse(new ByteArrayInputStream(s.getBytes("utf-8")));
 
 						MessagesReply reply = (MessagesReply) parser.root;
 						for (Message msg : reply.messages) {
