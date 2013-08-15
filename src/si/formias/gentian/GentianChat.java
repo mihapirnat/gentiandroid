@@ -59,6 +59,7 @@ import si.formias.gentian.dialog.DialogLauncher;
 import si.formias.gentian.dialog.ExportIdentityDialog.Launcher;
 import si.formias.gentian.dialog.NewContactAddDialog;
 import si.formias.gentian.http.HttpMagic;
+import si.formias.gentian.security.PRNGFixes;
 import si.formias.gentian.tab.Contacts;
 import si.formias.gentian.tab.Messages;
 
@@ -220,6 +221,16 @@ public class GentianChat extends Activity {
 
 		System.out.println("gen oncreate");
 		super.onCreate(savedInstanceState);
+		try {
+			PRNGFixes.apply();
+		} catch (Exception e) {
+			displayNotice("SecureRandom PRNGFix failed, your encryption may be broken.\nError: "+e.getMessage(), new Runnable() {
+				public void run() {
+					Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://android-developers.blogspot.com.au/2013/08/some-securerandom-thoughts.html"));
+					startActivity(browserIntent);
+				}
+			});
+		}
 		running = true;
 		handler = new Handler();
 		Display display = getWindowManager().getDefaultDisplay();
