@@ -414,15 +414,19 @@ public class GentianService extends Service {
 	private void initGCM() {
 		if (config == null)
 			return;
-		GCMRegistrar.checkDevice(this);
-		GCMRegistrar.checkManifest(this);
-		final String regId = GCMRegistrar.getRegistrationId(this);
-		if (regId.equals("")) {
-			GCMRegistrar.register(this, GCM.GCM_REGISTER);
-		} else {
-			Log.v("KatalogService", "Already registered: " + regId);
-			registerGCMKeyToServer(regId);
+		try {
+			GCMRegistrar.checkDevice(this);
+			GCMRegistrar.checkManifest(this);
+			final String regId = GCMRegistrar.getRegistrationId(this);
+			if (regId.equals("")) {
+				GCMRegistrar.register(this, GCM.GCM_REGISTER);
+			} else {
+				Log.v("KatalogService", "Already registered: " + regId);
+				registerGCMKeyToServer(regId);
 
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 	}

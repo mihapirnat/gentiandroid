@@ -103,7 +103,7 @@ public class AccountThread extends Thread {
 
 						MessagesReply reply = (MessagesReply) parser.root;
 						for (Message msg : reply.messages) {
-							tail = Math.max(tail, msg.getId());
+							tail = Math.max(tail, msg.getTimeStamp());
 						}
 						service.cancelNotifyCannotCheckAccount();
 						service.newMessageReply(account, reply);
